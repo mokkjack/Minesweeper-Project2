@@ -12,4 +12,4 @@
 
 - [Fyne Getting Started](https://docs.fyne.io/started/)
 - [Setting up Golang](https://go.dev/doc/tutorial/getting-started)
-- [Guides on setting up Go modules/Using go if you haven't](https://go.dev/doc/tutorial/create-module)
+- [Guides on setting up Go modules/Using Go if you haven't](https://go.dev/doc/tutorial/create-module)

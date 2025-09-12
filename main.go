@@ -1,30 +1,21 @@
 package main
 
 import (
+	"minesweeper/config"
+	"minesweeper/components"
+
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 )
+//var numberOfMines int = 10   // User Determined, can be 10 or 20
+
 
 func main() {
 	a := app.New()
-	w := a.NewWindow("Grid Layout")
-  grid := container.New(layout.NewGridLayout(11))
-
-  for row := 0; row < 11; row++{
-    for col := 0; col < 11; col++{
-      if row == 0 && col == 0 {
-
-      } else if row == 0{
-
-      } else if col == 0{
-
-      } else{
-        
-      }
-    }
-  }
-
-	w.SetContent(grid)
-	w.ShowAndRun()
+	window := a.NewWindow("Minesweeper")
+	window.Resize(fyne.NewSize(config.WindowHeight,config.WindowWidth))
+	window.SetFixedSize(config.FixedWinSize)
+	game := components.SetupGame()
+	window.SetContent(game)
+	window.ShowAndRun()
 }

@@ -15,7 +15,10 @@ func main() {
 	window := a.NewWindow("Minesweeper")
 	window.Resize(fyne.NewSize(config.WindowHeight,config.WindowWidth))
 	window.SetFixedSize(config.FixedWinSize)
-	game := components.SetupGame()
-	window.SetContent(game)
+
+	gameHandler := components.NewGameHandler()
+
+	gameWindow := components.SetupGameGraphics(components.GetBoard(&gameHandler))
+	window.SetContent(gameWindow)
 	window.ShowAndRun()
 }

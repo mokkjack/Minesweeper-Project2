@@ -4,7 +4,6 @@ import (
 	"minesweeper/config"
 
 	"image/color"
-	"math/rand"
 	"strconv"
 
 	"fyne.io/fyne/v2"
@@ -22,7 +21,7 @@ var (
 // We'll need to modify this so that it can accept the gamestate as an argument 
 // Inputs: None
 // Outputs: A fyne container which can store multiple elements
-func SetupGame() *fyne.Container{
+func SetupGameGraphics(board [][]Square) *fyne.Container{
 	var columnNames string = "abcdefghijklmnopqrstuvwxyz"
 
 	var tempMines [10][10]int
@@ -42,9 +41,12 @@ func SetupGame() *fyne.Container{
 				r := canvas.NewText(strconv.Itoa(row), color.White)
 				r.Move(fyne.NewPos(0, float32(row*config.GridSpacing) ) )
 				rowHeaders = append(rowHeaders, r)
-			} else{
-				// This is just as a placeholder for now to demonstrate how we could make a grid 
-				r := canvas.NewText(strconv.Itoa(rand.Int() % 2), color.White)
+			} else if board[row-1][col-1].isBomb{
+				r := canvas.NewText("b", color.White)
+				r.Move(fyne.NewPos(float32(col*config.GridSpacing), float32(row*config.GridSpacing) ) )
+				rowHeaders = append(rowHeaders, r)
+			} else {
+				r := canvas.NewText(strconv.Itoa(board[row-1][col-1].numValue), color.White)
 				r.Move(fyne.NewPos(float32(col*config.GridSpacing), float32(row*config.GridSpacing) ) )
 				rowHeaders = append(rowHeaders, r)
 			}

@@ -1,8 +1,12 @@
 # EECS 581 Project 1
 
 ## TODO:
-
-- Create the layout for the project/get it to show a window
+- Generate the Mines in the game manager
+- Create the function for revealing multiple zero squares
+- Create the front end for boxes
+    - Box generation
+    - Box revealing method
+- Handle the click event and make sure it works
 
 ## Issues Experienced:
 

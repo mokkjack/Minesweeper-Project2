@@ -55,3 +55,37 @@ func NewGameHandler() gamehandler{
 func GetBoard(handler *gamehandler) [][]Square{
 	return handler.board;	
 }
+
+func (handler *gamehandler) RevealZero(row int, col int) {
+	//Checks to see if cordinate is inside the board if not returns
+	if row < 0 || row >= config.BoardSize || col < 0 || col >= config.BoardSize {
+		return
+	}
+
+	sq := &handler.board[row][col] //Gets address at clicked position
+
+	//If square is revealed or flagged don't reveal
+	if sq.state == Uncovered || sq.state == Flagged {
+		return
+	}
+
+	//If value is zero and not a bomb uncover
+	if sq.numValue == 0 && !sq.isBomb {
+		sq.state = Uncovered
+	}
+
+	//Recursively calls neighboring squares 
+	if sq.numValue == 0 {
+		//Checks the rows
+		for dr := -1; dr <= 1; dr++ {
+			//Checks the columns
+			for dc := -1; dc <= 1; dc++ {
+				//Skips same spot
+				if dr == 0 && dc == 0 {
+					continue
+				}
+				handler.RevealZero(row+dr, col+dc)
+			}
+		}
+	}
+}

@@ -9,51 +9,51 @@ import (
 type SquareState int
 
 const (
-    Covered SquareState = iota
-    Uncovered
-    Flagged
+	Covered SquareState = iota
+	Uncovered
+	Flagged
 )
 
 // Define the square struct
 type Square struct {
-    state    SquareState
-    isBomb   bool
-    numValue int
+	state    SquareState
+	isBomb   bool
+	numValue int
 }
 
 type gamehandler struct {
 	board [][]Square
+	rng   *rand.Rand
 }
 
 // This function should create the entire game board equipped with mines and numbered Squares
 // Current iteration doesn't do that, but it does have a structure.
 // Keep in mind we will have to do the generation of bombs, then seperately number the squares when implementing
-func NewGameHandler() gamehandler{
+func NewGameHandler() gamehandler {
 	handler := gamehandler{}
 	handler.board = make([][]Square, config.BoardSize)
 
-	
-	for x := 0; x < config.BoardSize; x++{
+	for x := 0; x < config.BoardSize; x++ {
 		handler.board[x] = make([]Square, config.BoardSize)
 	}
 	rand.Seed(time.Now().UnixNano())
 	for row := 0; row < config.BoardSize; row++ {
 		for col := 0; col < config.BoardSize; col++ {
-			var box Square 
+			var box Square
 			box.state = Covered
 			box.isBomb = rand.Intn(4) == 1 // currently no set number of bombs
-			if !box.isBomb	{
-				box.numValue = rand.Intn(8)	
-			}			
-			handler.board[row][col] = box 
+			if !box.isBomb {
+				box.numValue = rand.Intn(8)
+			}
+			handler.board[row][col] = box
 		}
 	}
 
 	return handler
 }
 
-func GetBoard(handler *gamehandler) [][]Square{
-	return handler.board;	
+func GetBoard(handler *gamehandler) [][]Square {
+	return handler.board
 }
 
 func (handler *gamehandler) RevealZero(row int, col int) {
@@ -74,7 +74,7 @@ func (handler *gamehandler) RevealZero(row int, col int) {
 		sq.state = Uncovered
 	}
 
-	//Recursively calls neighboring squares 
+	//Recursively calls neighboring squares
 	if sq.numValue == 0 {
 		//Checks the rows
 		for dr := -1; dr <= 1; dr++ {

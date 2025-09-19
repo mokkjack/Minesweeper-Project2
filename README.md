@@ -2,7 +2,6 @@
 
 ## TODO:
 - Generate the Mines in the game manager
-- Create the function for revealing multiple zero squares
 - Create the front end for boxes
     - Box generation
     - Box revealing method

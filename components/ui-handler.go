@@ -92,7 +92,7 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 				var txt string
 				if c.isBomb {
 					txt = "b"
-				} else {
+				} else if c.numValue != 0 {
 					txt = strconv.Itoa(c.numValue)
 				}
 				base := canvas.NewText(txt, color.White)

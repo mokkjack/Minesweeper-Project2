@@ -22,7 +22,7 @@ func main() {
 	window.SetContent(gameWindow)
 
 	// Fake functions lie in "ui-handler.go" and are meant just to simulate an uncover (directly calls RevealZero)/flag operation
-	components.FakeUncover(&gameHandler, 2, 3)
-	components.FakeFlag(board, 0, 0)
+	//components.FakeUncover(&gameHandler, 2, 3)
+	//components.FakeFlag(board, 0, 0)
 	window.ShowAndRun()
 }

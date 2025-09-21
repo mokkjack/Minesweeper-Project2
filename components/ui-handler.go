@@ -144,7 +144,7 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 			flag.Move(fyne.NewPos(x, y))
 			cellFlags[rw][c] = flag
 
-			objects = append(objects, clickable, flag)
+			objects = append(objects, clickable.Rectangle, clickable, flag)
 		}
 	}
 

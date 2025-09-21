@@ -148,12 +148,20 @@ func (handler *Gamehandler) RevealZero(row int, col int) {
 	// If value is zero and not a bomb uncover
 	if sq.numValue == 0 && !sq.isBomb {
 		sq.state = Uncovered
+	} else{
+		sq.state = Uncovered
+		return
 	}
 
 	// Recursively calls neighboring squares
 	if sq.numValue == 0 {
-		handler.RevealZero(row+1, col)
+		handler.RevealZero(row+1, col+1)
+		handler.RevealZero(row+1, col-1)
+		handler.RevealZero(row-1, col+1)
+		handler.RevealZero(row-1, col-1)
+
 		handler.RevealZero(row-1, col)
+		handler.RevealZero(row+1, col)
 		handler.RevealZero(row, col+1)
 		handler.RevealZero(row, col-1)
 	}

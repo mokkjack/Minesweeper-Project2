@@ -5,7 +5,7 @@ import (
 )
 
 // mine generator functions needs the location of the first click, and the number of mines
-func (h *gamehandler) mine_generator(first_click_row, first_click_col, num_mines int) {
+func (h *Gamehandler) mine_generator(first_click_row, first_click_col, num_mines int) {
 	// find the cell that was the first click
 	first_clicked_cell := first_click_row*config.BoardSize + first_click_col
 

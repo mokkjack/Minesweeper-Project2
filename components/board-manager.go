@@ -21,7 +21,7 @@ type Square struct {
 	numValue int
 }
 
-type gamehandler struct {
+type Gamehandler struct {
 	board [][]Square
 	rng   *rand.Rand
 }
@@ -29,8 +29,8 @@ type gamehandler struct {
 // This function should create the entire game board equipped with mines and numbered Squares
 // Current iteration doesn't do that, but it does have a structure.
 // Keep in mind we will have to do the generation of bombs, then seperately number the squares when implementing
-func NewGameHandler() gamehandler {
-	handler := gamehandler{}
+func NewGameHandler() Gamehandler {
+	handler := Gamehandler{}
 	handler.board = make([][]Square, config.BoardSize)
 
 	for x := 0; x < config.BoardSize; x++ {
@@ -52,11 +52,11 @@ func NewGameHandler() gamehandler {
 	return handler
 }
 
-func GetBoard(handler *gamehandler) [][]Square {
+func GetBoard(handler *Gamehandler) [][]Square {
 	return handler.board
 }
 
-func (handler *gamehandler) RevealZero(row int, col int) {
+func (handler *Gamehandler) RevealZero(row int, col int) {
 	// Checks to see if coordinate is inside the board if not returns
 	if row < 0 || row >= config.BoardSize || col < 0 || col >= config.BoardSize {
 		return

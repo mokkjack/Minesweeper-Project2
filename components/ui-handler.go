@@ -11,40 +11,62 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-
 var (
 	colHeaders []fyne.CanvasObject
 	rowHeaders []fyne.CanvasObject
 
-  cellOverlays [][]*canvas.Rectangle
-  cellFlags [][]*canvas.Text
+	cellOverlays [][]*canvas.Rectangle
+	cellFlags    [][]*canvas.Text
 )
+
+type clickableRect struct {
+	*canvas.Rectangle
+	row     int
+	col     int
+	handler *Gamehandler
+}
+
+var _ fyne.Tappable = (*clickableRect)(nil)
+var _ fyne.SecondaryTappable = (*clickableRect)(nil)
+
+func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
+	c.handler.RevealZero(c.row, c.col)
+	applyOverlayStates(c.handler.board)
+}
+
+func (c *clickableRect) TappedSecondary(_ *fyne.PointEvent) {
+	sq := &c.handler.board[c.row][c.col]
+	if sq.state == Flagged {
+		sq.state = Covered
+	} else if sq.state == Covered {
+		sq.state = Flagged
+	}
+	applyOverlayStates(c.handler.board)
+}
 
 // Used to simplify r.move() operations
 func cellPos(col, row int) fyne.Position {
-  return fyne.NewPos(
-    float32(col*config.GridSpacing),
-    float32(row*config.GridSpacing),
-  )
+	return fyne.NewPos(
+		float32(col*config.GridSpacing),
+		float32(row*config.GridSpacing),
+	)
 }
 
 // This Function is Intended to be used as a one time initializer for the game's UI components
 // Inputs: None
 // Outputs: A fyne container which can store multiple elements
-func SetupGameGraphics(board [][]Square) *fyne.Container{
+func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container { //added the game handler to this so it could use the logic from game handler.go Alex
 	var columnNames string = "abcdefghijklmnopqrstuvwxyz"
 
-
-  // Create "Cells" on top of each box to show/not show depending on state
-  cellOverlays = make([][]*canvas.Rectangle, config.BoardSize)
-  cellFlags = make([][]*canvas.Text, config.BoardSize)
-  for r := range cellOverlays {
+	// Create "Cells" on top of each box to show/not show depending on state
+	cellOverlays = make([][]*canvas.Rectangle, config.BoardSize)
+	cellFlags = make([][]*canvas.Text, config.BoardSize)
+	for r := range cellOverlays {
 		cellOverlays[r] = make([]*canvas.Rectangle, config.BoardSize)
 		cellFlags[r] = make([]*canvas.Text, config.BoardSize)
 	}
 
-  objects := make([]fyne.CanvasObject, 0, (config.BoardSize+1)*(config.BoardSize+1)*5)
-
+	objects := make([]fyne.CanvasObject, 0, (config.BoardSize+1)*(config.BoardSize+1)*5)
 
 	for row := 0; row < (config.BoardSize + 1); row++ {
 		for col := 0; col < (config.BoardSize + 1); col++ {
@@ -72,53 +94,61 @@ func SetupGameGraphics(board [][]Square) *fyne.Container{
 				base := canvas.NewText(txt, color.White)
 				base.TextSize = config.GridSpacing / 2
 
-        // Center Text
-        size := base.MinSize()
-        cellSize := float32(config.GridSpacing)
+				// Center Text
+				size := base.MinSize()
+				cellSize := float32(config.GridSpacing)
 
-        x := float32(col*config.GridSpacing) + (cellSize-size.Width) / 2
-        y := float32(row*config.GridSpacing) + (cellSize-size.Height) / 2
-        base.Move(fyne.NewPos(x, y))
+				x := float32(col*config.GridSpacing) + (cellSize-size.Width)/2
+				y := float32(row*config.GridSpacing) + (cellSize-size.Height)/2
+				base.Move(fyne.NewPos(x, y))
 
 				objects = append(objects, base)
 			}
 		}
 	}
 
-  for rw := 0; rw < config.BoardSize; rw++ {
+	for rw := 0; rw < config.BoardSize; rw++ {
 		for c := 0; c < config.BoardSize; c++ {
 			// overlay rectangle
-			overlay := canvas.NewRectangle(color.NRGBA{R: 60, G: 60, B: 60, A: 255})
-			overlay.Resize(fyne.NewSize(float32(config.GridSpacing), float32(config.GridSpacing)))
-			overlay.Move(cellPos(c+1, rw+1)) // +1 to account for headers
-      overlay.StrokeColor = color.NRGBA{R: 30, G: 30, B: 30, A: 255}
-      overlay.StrokeWidth = 1
-			cellOverlays[rw][c] = overlay
+			rect := canvas.NewRectangle(color.NRGBA{R: 60, G: 60, B: 60, A: 255})
+			rect.Resize(fyne.NewSize(float32(config.GridSpacing), float32(config.GridSpacing)))
+			rect.Move(cellPos(c+1, rw+1)) // +1 to account for headers
+			rect.StrokeColor = color.NRGBA{R: 30, G: 30, B: 30, A: 255}
+			rect.StrokeWidth = 1
+
+			clickable := &clickableRect{
+				Rectangle: rect,
+				row:       rw,
+				col:       c,
+				handler:   handler,
+			}
+
+			cellOverlays[rw][c] = rect
 
 			// Flag
 			flag := canvas.NewText("F", color.NRGBA{R: 220, G: 40, B: 40, A: 255})
-      flag.TextSize = config.GridSpacing / 2
-      flag.TextStyle.Bold = true
-      size := flag.MinSize()
+			flag.TextSize = config.GridSpacing / 2
+			flag.TextStyle.Bold = true
+			size := flag.MinSize()
 
-      // Center Text
-      cellSize := float32(config.GridSpacing)
-      x := float32((c+1)*config.GridSpacing) + (cellSize-size.Width) / 2
-      y := float32((rw+1)*config.GridSpacing) + (cellSize-size.Height) / 2
+			// Center Text
+			cellSize := float32(config.GridSpacing)
+			x := float32((c+1)*config.GridSpacing) + (cellSize-size.Width)/2
+			y := float32((rw+1)*config.GridSpacing) + (cellSize-size.Height)/2
 			flag.Move(fyne.NewPos(x, y))
 			cellFlags[rw][c] = flag
 
-			objects = append(objects, overlay, flag)
+			objects = append(objects, clickable, flag)
 		}
 	}
 
 	applyOverlayStates(board)
 
-	return container.NewWithoutLayout(objects...) 
+	return container.NewWithoutLayout(objects...)
 }
 
-func applyOverlayStates(board [][]Square){
-  for r := 0; r < config.BoardSize; r++ {
+func applyOverlayStates(board [][]Square) {
+	for r := 0; r < config.BoardSize; r++ {
 		for c := 0; c < config.BoardSize; c++ {
 			ov := cellOverlays[r][c]
 			fl := cellFlags[r][c]
@@ -140,15 +170,14 @@ func applyOverlayStates(board [][]Square){
 	}
 }
 
-
 // Created to simulate an "Uncover operation"
 // Using gamehandler object to call "board-manager.go"'s revealZero func without causing import cycle
-func FakeUncover(h *gamehandler, row, col int) {
+func FakeUncover(h *Gamehandler, row, col int) {
 	if h == nil || row < 0 || col < 0 || row >= len(h.board) || col >= len(h.board[row]) {
-        return
-    }
-    h.RevealZero(row, col)
-    applyOverlayStates(h.board) // repaint states
+		return
+	}
+	h.RevealZero(row, col)
+	applyOverlayStates(h.board) // repaint states
 }
 
 // Created to simulate a flag operation

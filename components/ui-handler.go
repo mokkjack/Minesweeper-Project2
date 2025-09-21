@@ -59,18 +59,20 @@ func cellPos(col, row int) fyne.Position {
 // This Function is Intended to be used as a one time initializer for the game's UI components
 // Inputs: None
 // Outputs: A fyne container which can store multiple elements
-func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container { //added the game handler to this so it could use the logic from game handler.go Alex
+func SetupGameGraphics(board [][]Square) *fyne.Container { //added the game handler to this so it could use the logic from game handler.go Alex
 	var columnNames string = "abcdefghijklmnopqrstuvwxyz"
 
-	// Create "Cells" on top of each box to show/not show depending on state
-	cellOverlays = make([][]*canvas.Rectangle, config.BoardSize)
-	cellFlags = make([][]*canvas.Text, config.BoardSize)
-	for r := range cellOverlays {
+
+  // Create "Cells" on top of each box to show/not show depending on state
+  cellOverlays = make([][]*canvas.Rectangle, config.BoardSize)
+  cellFlags = make([][]*canvas.Text, config.BoardSize)
+  for r := range cellOverlays {
 		cellOverlays[r] = make([]*canvas.Rectangle, config.BoardSize)
 		cellFlags[r] = make([]*canvas.Text, config.BoardSize)
 	}
 
-	objects := make([]fyne.CanvasObject, 0, (config.BoardSize+1)*(config.BoardSize+1)*5)
+  objects := make([]fyne.CanvasObject, 0, (config.BoardSize+1)*(config.BoardSize+1)*5)
+
 
 	for row := 0; row < (config.BoardSize + 1); row++ {
 		for col := 0; col < (config.BoardSize + 1); col++ {
@@ -98,59 +100,54 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 				base := canvas.NewText(txt, color.White)
 				base.TextSize = config.GridSpacing / 2
 
-				// Center Text
-				size := base.MinSize()
-				cellSize := float32(config.GridSpacing)
+        // Center Text
+        size := base.MinSize()
+        cellSize := float32(config.GridSpacing)
 
-				x := float32(col*config.GridSpacing) + (cellSize-size.Width)/2
-				y := float32(row*config.GridSpacing) + (cellSize-size.Height)/2
-				base.Move(fyne.NewPos(x, y))
+        x := float32(col*config.GridSpacing) + (cellSize-size.Width) / 2
+        y := float32(row*config.GridSpacing) + (cellSize-size.Height) / 2
+        base.Move(fyne.NewPos(x, y))
 
 				objects = append(objects, base)
 			}
 		}
 	}
 
-	for rw := 0; rw < config.BoardSize; rw++ {
+  for rw := 0; rw < config.BoardSize; rw++ {
 		for c := 0; c < config.BoardSize; c++ {
 			// overlay rectangle
-			rect := canvas.NewRectangle(color.NRGBA{R: 60, G: 60, B: 60, A: 255})
-			rect.Resize(fyne.NewSize(float32(config.GridSpacing), float32(config.GridSpacing)))
-			rect.Move(cellPos(c+1, rw+1)) // +1 to account for headers
-			rect.StrokeColor = color.NRGBA{R: 30, G: 30, B: 30, A: 255}
-			rect.StrokeWidth = 1
-
-			clickable := &clickableRect{
-				Rectangle: rect,
-				row:       rw,
-				col:       c,
-				handler:   nil,
-				firstClick: true,
-			}
-
-			cellOverlays[rw][c] = rect
+			overlay := canvas.NewRectangle(color.NRGBA{R: 60, G: 60, B: 60, A: 255})
+			overlay.Resize(fyne.NewSize(float32(config.GridSpacing), float32(config.GridSpacing)))
+			overlay.Move(cellPos(c+1, rw+1)) // +1 to account for headers
+      overlay.StrokeColor = color.NRGBA{R: 30, G: 30, B: 30, A: 255}
+      overlay.StrokeWidth = 1
+			cellOverlays[rw][c] = overlay
 
 			// Flag
 			flag := canvas.NewText("F", color.NRGBA{R: 220, G: 40, B: 40, A: 255})
-			flag.TextSize = config.GridSpacing / 2
-			flag.TextStyle.Bold = true
-			size := flag.MinSize()
+      flag.TextSize = config.GridSpacing / 2
+      flag.TextStyle.Bold = true
+      size := flag.MinSize()
 
-			// Center Text
-			cellSize := float32(config.GridSpacing)
-			x := float32((c+1)*config.GridSpacing) + (cellSize-size.Width)/2
-			y := float32((rw+1)*config.GridSpacing) + (cellSize-size.Height)/2
+      // Center Text
+      cellSize := float32(config.GridSpacing)
+      x := float32((c+1)*config.GridSpacing) + (cellSize-size.Width) / 2
+      y := float32((rw+1)*config.GridSpacing) + (cellSize-size.Height) / 2
 			flag.Move(fyne.NewPos(x, y))
 			cellFlags[rw][c] = flag
 
-			objects = append(objects, clickable, flag)
+			objects = append(objects, overlay, flag)
 		}
 	}
 
 	applyOverlayStates(board)
 
-	return container.NewWithoutLayout(objects...)
+	return container.NewWithoutLayout(objects...) 
 }
+
+
+
+
 
 func applyOverlayStates(board [][]Square) {
 	for r := 0; r < config.BoardSize; r++ {

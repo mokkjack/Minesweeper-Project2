@@ -24,12 +24,16 @@ type clickableRect struct {
 	row     int
 	col     int
 	handler *Gamehandler
+	firstClick bool
 }
 
 var _ fyne.Tappable = (*clickableRect)(nil)
 var _ fyne.SecondaryTappable = (*clickableRect)(nil)
 
 func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
+	if(c.firstClick){
+		c.firstClick = false
+	}
 	c.handler.RevealZero(c.row, c.col)
 	applyOverlayStates(c.handler.board)
 }
@@ -120,7 +124,8 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 				Rectangle: rect,
 				row:       rw,
 				col:       c,
-				handler:   handler,
+				handler:   nil,
+				firstClick: true,
 			}
 
 			cellOverlays[rw][c] = rect

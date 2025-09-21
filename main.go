@@ -18,7 +18,7 @@ func main() {
 
 	gameHandler := components.NewGameHandler()
 	board := components.GetBoard(&gameHandler)
-	gameWindow := components.SetupGameGraphics(board) //had to change the uiboard function so this needed the use the board variable instead of getboard again
+	gameWindow := components.SetupGameGraphics(board, &gameHandler) //had to change the uiboard function so this needed the use the board variable instead of getboard again
 	window.SetContent(gameWindow)
 
 	// Fake functions lie in "ui-handler.go" and are meant just to simulate an uncover (directly calls RevealZero)/flag operation

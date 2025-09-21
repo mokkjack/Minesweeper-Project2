@@ -1,12 +1,13 @@
 package main
 
 import (
-	"minesweeper/config"
 	"minesweeper/components"
+	"minesweeper/config"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 )
+
 //var numberOfMines int = 10   // User Determined, can be 10 or 20
 
 
@@ -17,8 +18,12 @@ func main() {
 	window.SetFixedSize(config.FixedWinSize)
 
 	gameHandler := components.NewGameHandler()
-
+  board := components.GetBoard(&gameHandler)
 	gameWindow := components.SetupGameGraphics(components.GetBoard(&gameHandler))
 	window.SetContent(gameWindow)
+
+  // Fake functions lie in "ui-handler.go" and are meant just to simulate an uncover (directly calls RevealZero)/flag operation
+  components.FakeUncover(&gameHandler, 2, 3)
+  components.FakeFlag(board, 0, 0)
 	window.ShowAndRun()
 }

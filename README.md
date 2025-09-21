@@ -1,13 +1,12 @@
 # EECS 581 Project 1
 
 ## TODO:
+
 - Generate the Mines in the game manager
-- Create the front end for boxes
-    - Box generation
-    - Box revealing method
 - Handle the click event and make sure it works
 - Ask the user if they want 10 mines or 20 mines
 - Ensure the first click can't trigger a mine
+- Set proper "Neighbor Counting"
 
 ## Issues Experienced:
 

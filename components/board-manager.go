@@ -36,14 +36,14 @@ func NewGameHandler() gamehandler {
 	for x := 0; x < config.BoardSize; x++ {
 		handler.board[x] = make([]Square, config.BoardSize)
 	}
-	rand.Seed(time.Now().UnixNano())
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for row := 0; row < config.BoardSize; row++ {
 		for col := 0; col < config.BoardSize; col++ {
 			var box Square
 			box.state = Covered
-			box.isBomb = rand.Intn(4) == 1 // currently no set number of bombs
+			box.isBomb = r.Intn(20) == 1 // currently no set number of bombs
 			if !box.isBomb {
-				box.numValue = rand.Intn(8)
+				box.numValue = r.Intn(2) // Placeholder for neighboring bomb count
 			}
 			handler.board[row][col] = box
 		}
@@ -57,24 +57,24 @@ func GetBoard(handler *gamehandler) [][]Square {
 }
 
 func (handler *gamehandler) RevealZero(row int, col int) {
-	//Checks to see if cordinate is inside the board if not returns
+	// Checks to see if coordinate is inside the board if not returns
 	if row < 0 || row >= config.BoardSize || col < 0 || col >= config.BoardSize {
 		return
 	}
 
 	sq := &handler.board[row][col] //Gets address at clicked position
 
-	//If square is revealed or flagged don't reveal
+	// If square is revealed or flagged don't reveal
 	if sq.state == Uncovered || sq.state == Flagged {
 		return
 	}
 
-	//If value is zero and not a bomb uncover
+	// If value is zero and not a bomb uncover
 	if sq.numValue == 0 && !sq.isBomb {
 		sq.state = Uncovered
 	}
 
-	//Recursively calls neighboring squares
+	// Recursively calls neighboring squares
 	if sq.numValue == 0 {
 		//Checks the rows
 		for dr := -1; dr <= 1; dr++ {

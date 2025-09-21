@@ -16,7 +16,7 @@ func main() {
 	window.Resize(fyne.NewSize(config.WindowHeight, config.WindowWidth))
 	window.SetFixedSize(config.FixedWinSize)
 
-	gameHandler := components.NewGameHandler()
+	gameHandler := components.NewGameHandler(10)
 	board := components.GetBoard(&gameHandler)
 	gameWindow := components.SetupGameGraphics(board) //had to change the uiboard function so this needed the use the board variable instead of getboard again
 	window.SetContent(gameWindow)

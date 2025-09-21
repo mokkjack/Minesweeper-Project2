@@ -76,16 +76,9 @@ func (handler *gamehandler) RevealZero(row int, col int) {
 
 	// Recursively calls neighboring squares
 	if sq.numValue == 0 {
-		//Checks the rows
-		for dr := -1; dr <= 1; dr++ {
-			//Checks the columns
-			for dc := -1; dc <= 1; dc++ {
-				//Skips same spot
-				if dr == 0 && dc == 0 {
-					continue
-				}
-				handler.RevealZero(row+dr, col+dc)
-			}
-		}
+		handler.RevealZero(row+1, col)
+		handler.RevealZero(row-1, col)
+		handler.RevealZero(row, col+1)
+		handler.RevealZero(row, col-1)
 	}
 }

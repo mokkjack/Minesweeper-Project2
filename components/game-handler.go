@@ -68,7 +68,7 @@ func NewGameHandler(numMines int) Gamehandler {
 	}
 
 	// Shuffle the possible mine locations randomly
-	handler.rng.Shuffle(len(possible_mine_locations), func(i int, j int) {
+	handler.rng.Shuffle(len(possible_mine_locations)-1, func(i int, j int) {
 		possible_mine_locations[i], possible_mine_locations[j] = possible_mine_locations[j], possible_mine_locations[i]
 	})
 

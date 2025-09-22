@@ -46,9 +46,6 @@ import (
 )
 
 var (
-	colHeaders []fyne.CanvasObject
-	rowHeaders []fyne.CanvasObject
-
 	cellOverlays [][]*canvas.Rectangle
 	cellFlags    [][]*canvas.Text
 	cellTexts    [][]*canvas.Text
@@ -130,7 +127,6 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 				x := float32(col*config.GridSpacing) + (cell-sz.Width)/2
 				y := float32(0*config.GridSpacing) + (cell-sz.Height)/2
 				r.Move(fyne.NewPos(x, y))
-				colHeaders = append(colHeaders, r)
 				objects = append(objects, r)
 			} else if col == 0 {
 				r := canvas.NewText(strconv.Itoa(row), color.RGBA{0, 255, 0, 255})
@@ -140,7 +136,6 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 				x := float32(0*config.GridSpacing) + (cell-sz.Width)/2
 				y := float32(row*config.GridSpacing) + (cell-sz.Height)/2
 				r.Move(fyne.NewPos(x, y))
-				rowHeaders = append(rowHeaders, r)
 				objects = append(objects, r)
 			} else {
 				// Draw underlying cell content (bomb or number)

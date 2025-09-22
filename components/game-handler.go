@@ -9,7 +9,7 @@ Description:
 It handles board structure, how each square would react to a certain event, bomb placement/generation,
 flagging, recursive zero reveal/uncovering squares, win and lose conditions
 
-Functions used:
+Functions:
 - NewGameHandler: Creates a new game and board with bombs placed randomly on the board
 	Input: number of mines
 	Output: game handler with the board initialized

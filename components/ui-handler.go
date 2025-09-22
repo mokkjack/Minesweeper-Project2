@@ -1,3 +1,37 @@
+/*
+Prologue
+
+Authors: Adam Berry, Barrett Brown, Jonathan Gott, Alex Phibbs, Minh Vu
+Creation Date: 9/11/2025
+
+Description:
+- This file handles the GUI for a Minesweeper game. We're mostly using Fyne for this. It uses the backend stuff from
+game-handler and creates the GUI from that. This will create the visual grid, create the text in each cell (covered, uncovered, or flags).
+It also displays the win/lose message.
+
+Functions:
+- SetupGameGraphics: Initializes all GUI parts for the board
+
+- Tapped: Handles all left clicks
+
+- TappedSecondary: Handles all right clicks
+
+- applyOverlayStates: Update overlay visibility and colors based on the state of the cell (uncovered, covered, flagged, etc.)
+
+- updateCellTexts: Updates the text inside the cell
+
+- updateGameUI: Shows some text overlays (i.e. end of game message)
+
+Input:
+- Board state from game-handler
+- Player mouse clicks
+
+Output:
+- GUI visual update to the board
+- End of game messages
+
+*/
+
 package components
 
 import (
@@ -17,15 +51,15 @@ var (
 
 	cellOverlays [][]*canvas.Rectangle
 	cellFlags    [][]*canvas.Text
-  cellTexts    [][]*canvas.Text
-  gameMsg *canvas.Text
+	cellTexts    [][]*canvas.Text
+	gameMsg      *canvas.Text
 )
 
 type clickableRect struct {
 	*canvas.Rectangle
-	row        int
-	col        int
-	handler    *Gamehandler
+	row     int
+	col     int
+	handler *Gamehandler
 }
 
 var _ fyne.Tappable = (*clickableRect)(nil)
@@ -33,17 +67,17 @@ var _ fyne.SecondaryTappable = (*clickableRect)(nil)
 
 func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
 	if c.handler.gameOver {
-    return
-  }
+		return
+	}
 	c.handler.Click(c.row, c.col)
 	updateGameUI(c.handler)
 }
 
 func (c *clickableRect) TappedSecondary(_ *fyne.PointEvent) {
 	if c.handler.gameOver { // ignore flags after game over
-    return
-  }
-  c.handler.ToggleFlag(c.row, c.col)
+		return
+	}
+	c.handler.ToggleFlag(c.row, c.col)
 	updateGameUI(c.handler)
 }
 
@@ -68,11 +102,10 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		cellOverlays[r] = make([]*canvas.Rectangle, config.BoardSize)
 		cellFlags[r] = make([]*canvas.Text, config.BoardSize)
 	}
-  cellTexts = make([][]*canvas.Text, config.BoardSize)
-  for r := range cellTexts {
-    cellTexts[r] = make([]*canvas.Text, config.BoardSize)
-  }
-
+	cellTexts = make([][]*canvas.Text, config.BoardSize)
+	for r := range cellTexts {
+		cellTexts[r] = make([]*canvas.Text, config.BoardSize)
+	}
 
 	objects := make([]fyne.CanvasObject, 0, (config.BoardSize+1)*(config.BoardSize+1)*5)
 
@@ -81,23 +114,23 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 			if row == 0 && col == 0 {
 				continue
 			} else if row == 0 {
-				r := canvas.NewText(columnNames[col-1:col], color.RGBA{0,255,0,255})
+				r := canvas.NewText(columnNames[col-1:col], color.RGBA{0, 255, 0, 255})
 				r.TextSize = float32(config.GridSpacing) / 2
-        sz := r.MinSize()
-        cell := float32(config.GridSpacing)
-        x := float32(col*config.GridSpacing) + (cell - sz.Width)/2
-        y := float32(0*config.GridSpacing)   + (cell - sz.Height)/2
-        r.Move(fyne.NewPos(x, y))
+				sz := r.MinSize()
+				cell := float32(config.GridSpacing)
+				x := float32(col*config.GridSpacing) + (cell-sz.Width)/2
+				y := float32(0*config.GridSpacing) + (cell-sz.Height)/2
+				r.Move(fyne.NewPos(x, y))
 				colHeaders = append(colHeaders, r)
 				objects = append(objects, r)
 			} else if col == 0 {
-				r := canvas.NewText(strconv.Itoa(row), color.RGBA{0,255,0,255})
+				r := canvas.NewText(strconv.Itoa(row), color.RGBA{0, 255, 0, 255})
 				r.TextSize = float32(config.GridSpacing) / 2
-        sz := r.MinSize()
-        cell := float32(config.GridSpacing)
-        x := float32(0*config.GridSpacing)   + (cell - sz.Width)/2
-        y := float32(row*config.GridSpacing) + (cell - sz.Height)/2
-        r.Move(fyne.NewPos(x, y))
+				sz := r.MinSize()
+				cell := float32(config.GridSpacing)
+				x := float32(0*config.GridSpacing) + (cell-sz.Width)/2
+				y := float32(row*config.GridSpacing) + (cell-sz.Height)/2
+				r.Move(fyne.NewPos(x, y))
 				rowHeaders = append(rowHeaders, r)
 				objects = append(objects, r)
 			} else {
@@ -109,19 +142,19 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 				} else if c.numValue != 0 {
 					txt = strconv.Itoa(c.numValue)
 				}
-				base := canvas.NewText(txt, color.RGBA{0,255,0,255})
+				base := canvas.NewText(txt, color.RGBA{0, 255, 0, 255})
 				base.TextSize = config.GridSpacing / 2
 
 				// Center Text
 				size := base.MinSize()
 				cellSize := float32(config.GridSpacing)
 
-				x := float32(col*config.GridSpacing) + (cellSize-size.Width) / 2
-				y := float32(row*config.GridSpacing) + (cellSize-size.Height) / 2
+				x := float32(col*config.GridSpacing) + (cellSize-size.Width)/2
+				y := float32(row*config.GridSpacing) + (cellSize-size.Height)/2
 				base.Move(fyne.NewPos(x, y))
 
 				objects = append(objects, base)
-        cellTexts[row-1][col-1] = base
+				cellTexts[row-1][col-1] = base
 			}
 		}
 	}
@@ -137,10 +170,10 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 			overlay.StrokeWidth = 1
 
 			clickable := &clickableRect{
-				Rectangle:  overlay,
-				row:        rw,
-				col:        c,
-				handler:    handler,
+				Rectangle: overlay,
+				row:       rw,
+				col:       c,
+				handler:   handler,
 			}
 
 			cellOverlays[rw][c] = overlay
@@ -162,18 +195,18 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		}
 	}
 
-  // Centered end-game message (hidden initially)
-  gameMsg = canvas.NewText("", color.White)
-  gameMsg.TextStyle.Bold = true
-  gameMsg.TextSize = float32(config.GridSpacing) * 0.9
+	// Centered end-game message (hidden initially)
+	gameMsg = canvas.NewText("", color.White)
+	gameMsg.TextStyle.Bold = true
+	gameMsg.TextSize = float32(config.GridSpacing) * 0.9
 
-  // center over the whole board (headers + grid)
-  totalPx := float32(config.GridSpacing * (config.BoardSize + 1))
-  ms := gameMsg.MinSize()
-  gameMsg.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
-  gameMsg.Hide()
+	// center over the whole board (headers + grid)
+	totalPx := float32(config.GridSpacing * (config.BoardSize + 1))
+	ms := gameMsg.MinSize()
+	gameMsg.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
+	gameMsg.Hide()
 
-  objects = append(objects, gameMsg)
+	objects = append(objects, gameMsg)
 
 	applyOverlayStates(board)
 
@@ -204,61 +237,61 @@ func applyOverlayStates(board [][]Square) {
 }
 
 func updateCellTexts(board [][]Square) {
-  for r := 0; r < config.BoardSize; r++ {
-    for c := 0; c < config.BoardSize; c++ {
-      t := cellTexts[r][c]
-      if t == nil { continue }
+	for r := 0; r < config.BoardSize; r++ {
+		for c := 0; c < config.BoardSize; c++ {
+			t := cellTexts[r][c]
+			if t == nil {
+				continue
+			}
 
-      // decide what to show
-      var txt string
-      if board[r][c].isBomb {
-        txt = "b"
-      } else if board[r][c].numValue != 0 {
-        txt = strconv.Itoa(board[r][c].numValue)
-      } else {
-        txt = "" // empty for zeros
-      }
+			// decide what to show
+			var txt string
+			if board[r][c].isBomb {
+				txt = "b"
+			} else if board[r][c].numValue != 0 {
+				txt = strconv.Itoa(board[r][c].numValue)
+			} else {
+				txt = "" // empty for zeros
+			}
 
-      // update text and keep it centered
-      if t.Text != txt {
-        t.Text = txt
-        t.TextSize = config.GridSpacing / 2
-        sz := t.MinSize()
-        cell := float32(config.GridSpacing)
-        // +1,+1 because the board is offset by headers
-        x := float32((c+1)*config.GridSpacing) + (cell - sz.Width)/2
-        y := float32((r+1)*config.GridSpacing) + (cell - sz.Height)/2
-        t.Move(fyne.NewPos(x, y))
-        t.Refresh()
-      }
-    }
-  }
+			// update text and keep it centered
+			if t.Text != txt {
+				t.Text = txt
+				t.TextSize = config.GridSpacing / 2
+				sz := t.MinSize()
+				cell := float32(config.GridSpacing)
+				// +1,+1 because the board is offset by headers
+				x := float32((c+1)*config.GridSpacing) + (cell-sz.Width)/2
+				y := float32((r+1)*config.GridSpacing) + (cell-sz.Height)/2
+				t.Move(fyne.NewPos(x, y))
+				t.Refresh()
+			}
+		}
+	}
 }
 
-
 func updateGameUI(h *Gamehandler) {
-  updateCellTexts(h.board)
-  applyOverlayStates(h.board)
+	updateCellTexts(h.board)
+	applyOverlayStates(h.board)
 
-  if h.gameOver {
-    if h.win {
-      gameMsg.Text = "You Win!"
-      gameMsg.TextStyle.Bold = true
-      gameMsg.Color = color.RGBA{R: 255, G: 222, B: 33, A: 255}
-    } else {
-      gameMsg.Text = "Game Over"
-      gameMsg.TextStyle.Bold = true
-      gameMsg.Color = color.RGBA{R: 220, A: 255}
-    }
+	if h.gameOver {
+		if h.win {
+			gameMsg.Text = "You Win!"
+			gameMsg.TextStyle.Bold = true
+			gameMsg.Color = color.RGBA{R: 255, G: 222, B: 33, A: 255}
+		} else {
+			gameMsg.Text = "Game Over"
+			gameMsg.TextStyle.Bold = true
+			gameMsg.Color = color.RGBA{R: 220, A: 255}
+		}
 
-    totalPx := float32(config.GridSpacing * (config.BoardSize + 1))
-    ms := gameMsg.MinSize()
-    gameMsg.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
+		totalPx := float32(config.GridSpacing * (config.BoardSize + 1))
+		ms := gameMsg.MinSize()
+		gameMsg.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
 
-    
-    gameMsg.Show()
-    gameMsg.Refresh()
-  } else {
-    gameMsg.Hide()
-  }
+		gameMsg.Show()
+		gameMsg.Refresh()
+	} else {
+		gameMsg.Hide()
+	}
 }

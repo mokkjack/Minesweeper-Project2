@@ -1,4 +1,3 @@
-
 package components
 
 import (
@@ -25,6 +24,10 @@ type Square struct {
 type Gamehandler struct {
 	board [][]Square
 	rng   *rand.Rand
+  firstClick bool
+  gameOver bool
+  win bool
+  totalMines int
 }
 
 // This function should create the entire game board equipped with mines and numbered Squares
@@ -34,6 +37,10 @@ func NewGameHandler(numMines int) Gamehandler {
 	handler := Gamehandler{}
 	handler.board = make([][]Square, config.BoardSize)
 	handler.rng = rand.New(rand.NewSource(time.Now().UnixNano()))
+  handler.firstClick = true
+  handler.gameOver = false
+  handler.win = false
+  handler.totalMines = numMines
 
 
 	for x := 0; x < config.BoardSize; x++ {
@@ -53,22 +60,21 @@ func NewGameHandler(numMines int) Gamehandler {
 	// represents the total number of cells
 	num_cells := config.BoardSize * config.BoardSize
 
-	// this slice will have all locations where mines CAN go
+	// this slice will have all locations where mines can go
 	possible_mine_locations := make([]int, 0, num_cells)
 
 	// this for-loop finds every cell that is not the first clicked cell
 	// and adds it to the list of possible mine locations
 	for row := 0; row < config.BoardSize; row++ {
-		for col := 0; col <= config.BoardSize; col++ {
+		for col := 0; col < config.BoardSize; col++ {
 			// find current cell
 			cell_id := row*config.BoardSize + col
-
 			possible_mine_locations = append(possible_mine_locations, cell_id)
 		}
 	}
 
 	// Shuffle the possible mine locations randomly
-	handler.rng.Shuffle(len(possible_mine_locations)-1, func(i int, j int) {
+	handler.rng.Shuffle(len(possible_mine_locations), func(i int, j int) {
 		possible_mine_locations[i], possible_mine_locations[j] = possible_mine_locations[j], possible_mine_locations[i]
 	})
 
@@ -95,6 +101,7 @@ func (handler *Gamehandler) AddNumbers(){
 	for row := 0; row < config.BoardSize; row++ { 
 		for col := 0; col < config.BoardSize; col++{
 			if handler.board[row][col].isBomb{
+        handler.board[row][col].numValue = 0
 				continue
 			}
 			bombc := 0
@@ -110,17 +117,6 @@ func (handler *Gamehandler) AddNumbers(){
 			}
 			handler.board[row][col].numValue = bombc
 		}
-	}
-	for x := 0; x < config.BoardSize; x++ {
-		for y := 0; y < config.BoardSize; y++{
-			if(handler.board[x][y].isBomb){
-				print("B ")
-			} else {
-				print(handler.board[x][y].numValue)
-				print(" ")
-			}
-		}
-		println()
 	}
 }
 
@@ -167,6 +163,107 @@ func (handler *Gamehandler) RevealZero(row int, col int) {
 	}
 }
 
+func (handler *Gamehandler) Click(row, col int) {
+	if handler.gameOver || !isiInbounds(handler, row, col) {
+		return
+	}
 
-// mine generator functions needs the location of the first click, and the number of mines
-// func (h *Gamehandler) mine_generator(first_click_row, first_click_col, num_mines int) {
+	// First-click safety: if first click hits a bomb, move it elsewhere and recompute numbers.
+	if handler.firstClick && handler.board[row][col].isBomb {
+		handler.moveBombFrom(row, col)
+	}
+	handler.firstClick = false
+
+	sq := &handler.board[row][col]
+	if sq.state == Flagged || sq.state == Uncovered {
+		return
+	}
+
+	if sq.isBomb {
+		// lose
+		handler.gameOver = true
+		handler.win = false
+		handler.revealAllBombs()
+		return
+	}
+
+	if sq.numValue == 0 {
+		handler.RevealZero(row, col)
+	} else {
+		sq.state = Uncovered
+	}
+
+	handler.checkWin()
+}
+
+// ToggleFlag flips flag state and checks win.
+func (handler *Gamehandler) ToggleFlag(row, col int) {
+	if handler.gameOver || !isiInbounds(handler, row, col) {
+		return
+	}
+	sq := &handler.board[row][col]
+	if sq.state == Uncovered {
+		return
+	}
+	if sq.state == Flagged {
+		sq.state = Covered
+	} else {
+		sq.state = Flagged
+	}
+	handler.checkWin()
+}
+
+
+// moveBombFrom relocates a bomb at (row,col) to the first safe non-bomb cell and re-runs AddNumbers.
+func (handler *Gamehandler) moveBombFrom(row, col int) {
+	handler.board[row][col].isBomb = false
+
+	for r := 0; r < config.BoardSize; r++ {
+		for c := 0; c < config.BoardSize; c++ {
+			if (r == row && c == col) || handler.board[r][c].isBomb {
+				continue
+			}
+			handler.board[r][c].isBomb = true
+			handler.AddNumbers()
+			return
+		}
+	}
+	handler.board[row][col].isBomb = true
+	handler.AddNumbers()
+}
+
+func (handler *Gamehandler) revealAllBombs() {
+	for r := 0; r < config.BoardSize; r++ {
+		for c := 0; c < config.BoardSize; c++ {
+			if handler.board[r][c].isBomb {
+				handler.board[r][c].state = Uncovered
+			}
+		}
+	}
+}
+
+func (handler *Gamehandler) checkWin() {
+	if handler.gameOver {
+		return
+	}
+	flags := 0
+	allNonBombsUncovered := true
+
+	for r := 0; r < config.BoardSize; r++ {
+		for c := 0; c < config.BoardSize; c++ {
+			sq := handler.board[r][c]
+			if sq.isBomb {
+				if sq.state == Flagged {
+					flags++
+				}
+			} else if sq.state != Uncovered {
+				allNonBombsUncovered = false
+			}
+		}
+	}
+	// Win if every bomb is flagged and every non-bomb is uncovered
+	if flags == handler.totalMines && allNonBombsUncovered {
+		handler.gameOver = true
+		handler.win = true
+	}
+}

@@ -303,7 +303,7 @@ func (handler *Gamehandler) checkWin() {
 		}
 	}
 	// Win if every bomb is flagged and every non-bomb is uncovered
-	if flags == handler.totalMines && allNonBombsUncovered {
+	if allNonBombsUncovered {
 		handler.gameOver = true
 		handler.win = true
 	}

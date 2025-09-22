@@ -1,11 +1,47 @@
+# Makefile for Minesweeper-Project2 by Zhang
+
+#This makefile will actually compile the program in window and Linux
 
 BINARY = program
+OS := $(shell uname -s 2>/dev/null || echo Windows)
 
-.PHONY: all build run clean
+.PHONY: all deps sysdeps godeps build run clean
 
 all: build
 
-build:
+# System dependency check (Linux only)
+sysdeps:
+ifeq ($(OS),Linux)
+	@echo "==> Checking system dependencies..."
+	@missing=""; \
+	for pkg in libgl1-mesa-dev libglu1-mesa-dev xorg-dev pkg-config; do \
+		dpkg -s $$pkg >/dev/null 2>&1 || missing="$$missing $$pkg"; \
+	done; \
+	if [ -n "$$missing" ]; then \
+		echo "Missing system packages:$$missing"; \
+		echo "Install them with:"; \
+		echo "  sudo apt install$$missing"; \
+		exit 1; \
+	else \
+		echo "All system dependencies are installed."; \
+	fi
+else
+	@echo "Skipping system dependency check on Windows."
+endif
+
+# Go dependencies
+godeps:
+	@echo "==> Checking Go module dependencies..."
+	@if [ ! -f go.mod ]; then \
+		echo "No go.mod found. Initializing Go module..."; \
+		go mod init minesweeper || true; \
+	fi
+	go mod tidy
+
+deps: sysdeps godeps
+	@echo "==> All dependencies satisfied."
+
+build: deps
 	@echo "==> Building $(BINARY)..."
 	go build -o $(BINARY) -buildvcs=false
 

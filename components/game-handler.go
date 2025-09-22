@@ -1,3 +1,47 @@
+/*
+Prologue
+
+Authors: Adam Berry, Barrett Brown, Jonathan Gott, Alex Phibbs, Minh Vu
+Creation Date: 9/11/2025
+
+Description:
+- This file mostly handles the backend logic for a Minesweeper game.
+It handles board structure, how each square would react to a certain event, bomb placement/generation,
+flagging, recursive zero reveal/uncovering squares, win and lose conditions
+
+Functions used:
+- NewGameHandler: Creates a new game and board with bombs placed randomly on the board
+	Input: number of mines
+	Output: game handler with the board initialized
+
+- AddNumbers: Adds the number to each square representing the number of adjacent bombs
+
+- isiInbounds: Checks if a cell is inside the board
+
+- GetBoard: Returns the state of the board
+
+- RevealZero: Recursively uncovers zero-valued squares and their neighbors
+
+- Click: Handles all clicks (user click, first click, lose/win, recursive uncovering)
+
+- ToggleFlag: Toggles between flag states on a unrevealed square
+
+- moveBombFrom: Changes the location of a bomb if the first click is a bomb
+
+- revealAllBombs: Uncovers all bombs if it's in a lose condition
+
+- checkWin: Check whether the game is in a win condition
+
+Inputs:
+- Board size
+- Number of mines
+- Clicks (clicks/flags)
+
+Outputs:
+- Updated game on clicks
+- Game result (win/lose)
+*/
+
 package components
 
 import (
@@ -22,12 +66,12 @@ type Square struct {
 }
 
 type Gamehandler struct {
-	board [][]Square
-	rng   *rand.Rand
-  firstClick bool
-  gameOver bool
-  win bool
-  totalMines int
+	board      [][]Square
+	rng        *rand.Rand
+	firstClick bool
+	gameOver   bool
+	win        bool
+	totalMines int
 }
 
 // This function should create the entire game board equipped with mines and numbered Squares
@@ -37,11 +81,10 @@ func NewGameHandler(numMines int) Gamehandler {
 	handler := Gamehandler{}
 	handler.board = make([][]Square, config.BoardSize)
 	handler.rng = rand.New(rand.NewSource(time.Now().UnixNano()))
-  handler.firstClick = true
-  handler.gameOver = false
-  handler.win = false
-  handler.totalMines = numMines
-
+	handler.firstClick = true
+	handler.gameOver = false
+	handler.win = false
+	handler.totalMines = numMines
 
 	for x := 0; x < config.BoardSize; x++ {
 		handler.board[x] = make([]Square, config.BoardSize)
@@ -55,7 +98,6 @@ func NewGameHandler(numMines int) Gamehandler {
 			handler.board[row][col] = box
 		}
 	}
-	
 
 	// represents the total number of cells
 	num_cells := config.BoardSize * config.BoardSize
@@ -96,21 +138,21 @@ func NewGameHandler(numMines int) Gamehandler {
 	return handler
 }
 
-func (handler *Gamehandler) AddNumbers(){
+func (handler *Gamehandler) AddNumbers() {
 	// For each square in the array, count the number of mines in the surrounding eight squares
-	for row := 0; row < config.BoardSize; row++ { 
-		for col := 0; col < config.BoardSize; col++{
-			if handler.board[row][col].isBomb{
-        handler.board[row][col].numValue = 0
+	for row := 0; row < config.BoardSize; row++ {
+		for col := 0; col < config.BoardSize; col++ {
+			if handler.board[row][col].isBomb {
+				handler.board[row][col].numValue = 0
 				continue
 			}
 			bombc := 0
-			for i := -1; i < 2; i++{
-				for j := -1; j < 2; j++{
-					if (i == 0 && j == 0) || !isiInbounds(handler, row + i, col+j){
+			for i := -1; i < 2; i++ {
+				for j := -1; j < 2; j++ {
+					if (i == 0 && j == 0) || !isiInbounds(handler, row+i, col+j) {
 						continue
 					}
-					if(handler.board[row+i][col+j].isBomb){
+					if handler.board[row+i][col+j].isBomb {
 						bombc += 1
 					}
 				}
@@ -120,7 +162,7 @@ func (handler *Gamehandler) AddNumbers(){
 	}
 }
 
-func isiInbounds(handler *Gamehandler, row int, col int) bool{
+func isiInbounds(handler *Gamehandler, row int, col int) bool {
 	return (row >= 0) && (row < config.BoardSize) && (col >= 0) && (col < config.BoardSize)
 }
 
@@ -144,7 +186,7 @@ func (handler *Gamehandler) RevealZero(row int, col int) {
 	// If value is zero and not a bomb uncover
 	if sq.numValue == 0 && !sq.isBomb {
 		sq.state = Uncovered
-	} else{
+	} else {
 		sq.state = Uncovered
 		return
 	}
@@ -212,7 +254,6 @@ func (handler *Gamehandler) ToggleFlag(row, col int) {
 	}
 	handler.checkWin()
 }
-
 
 // moveBombFrom relocates a bomb at (row,col) to the first safe non-bomb cell and re-runs AddNumbers.
 func (handler *Gamehandler) moveBombFrom(row, col int) {

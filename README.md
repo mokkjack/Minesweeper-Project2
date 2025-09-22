@@ -13,6 +13,9 @@
 - Afterwards main.go will contact setup.go to create a window and ask the user how many mines they want
 - Upon declaring how many mines will be "in play" it will connect to ui-handler/game-handler.go
 - main.go: General entry point for the user, in here it will call to setup.go to "show" the initial window then swap view in that window to the minesweeper game
+
+### File Description
+
 - ui-handler.go is used to display the cells with the neighbor numbers/state/grab initial left/right click (uncover/flag) and do what needs to be done there
   - Set up cells/grid
   - Grab clicks/"push" clicked row/col onto other func in game-handler.go

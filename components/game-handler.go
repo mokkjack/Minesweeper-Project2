@@ -14,9 +14,9 @@ Functions:
 	Input: number of mines
 	Output: game handler with the board initialized
 
-- AddNumbers: Adds the number to each square representing the number of adjacent bombs
+- AddNumbers: Makes the number of each square equal to the number representing the adjacent bombs
 
-- isiInbounds: Checks if a cell is inside the board
+- isiInbounds: Helper function, checks if a cell is inside the board
 
 - GetBoard: Returns the state of the board
 
@@ -39,6 +39,7 @@ Inputs:
 
 Outputs:
 - Updated game on clicks
+  - Does this through updating the underlyining "Square" struct so other functions given this context can properly tell what's been changed
 - Game result (win/lose)
 */
 
@@ -52,31 +53,33 @@ import (
 
 type SquareState int
 
+// Constant used to represent state so we can call to this to figure out if something is covered/flagged or waht not to properly reflect elsewhere
 const (
 	Covered SquareState = iota
 	Uncovered
 	Flagged
 )
 
-// Define the square struct
+// Define the square struct, this is used for the cells in ui-handler.go but allows you to see cell state/if cell=bomb and the number of neighbors that cell has (if not bomb)
 type Square struct {
-	state    SquareState
-	isBomb   bool
-	numValue int
+	state    SquareState // If something is covered/uncovered/flagged
+	isBomb   bool // If something is a bomb
+	numValue int // Neighbor count
 }
 
+// Gamehandler structs holds the board sets the rng value and whether this is firstclick and if the game is over (win or not) and the total number of mines
 type Gamehandler struct {
-	board      [][]Square
-	rng        *rand.Rand
-	firstClick bool
-	gameOver   bool
-	win        bool
-	totalMines int
+	board      [][]Square // Used to store underlyining board
+	rng        *rand.Rand // Used for bomb generation
+	firstClick bool // Used to ensure if this is first click + bomb we dont insta lose
+	gameOver   bool // Used to ensure no more game/also to trigger win/lost message
+	win        bool // Used to tell ui-handler to show win/lost
+	totalMines int // Used in NewGameHandler
 }
 
-// This function should create the entire game board equipped with mines and numbered Squares
-// Current iteration doesn't do that, but it does have a structure.
-// Keep in mind we will have to do the generation of bombs, then seperately number the squares when implementing
+// This function creates the game board equipped with mines and numbered squares
+// Inputs: numMines as an int to place on the board
+// Outputs: A gamehandler struct so you can adjust/look at the board
 func NewGameHandler(numMines int) Gamehandler {
 	handler := Gamehandler{}
 	handler.board = make([][]Square, config.BoardSize)
@@ -133,11 +136,16 @@ func NewGameHandler(numMines int) Gamehandler {
 		handler.board[row][col].isBomb = true
 	}
 
+  // Called to adjust the "neighbor numbers" of each cell
 	handler.AddNumbers()
 
 	return handler
 }
 
+
+// Function that iterates through the game board and counts all nearby cells and sees how many bombs there are and sets it's numValue equal to that
+// Inputs: handler object containing the game board
+// Outputs: None, adjusts the underlining handler object
 func (handler *Gamehandler) AddNumbers() {
 	// For each square in the array, count the number of mines in the surrounding eight squares
 	for row := 0; row < config.BoardSize; row++ {
@@ -162,14 +170,24 @@ func (handler *Gamehandler) AddNumbers() {
 	}
 }
 
+
+// Helper function for finding if a row/col is in bounds based on a game bound
+// Inputs: Row/Col and handler object for game board
+// Outputs: Bool value representing if in bounds
 func isiInbounds(handler *Gamehandler, row int, col int) bool {
 	return (row >= 0) && (row < config.BoardSize) && (col >= 0) && (col < config.BoardSize)
 }
 
+// Helper function to get the board of the handler object specifically
+// Inputs: Handler object
+// Outputs: [][]Square Game board object
 func GetBoard(handler *Gamehandler) [][]Square {
 	return handler.board
 }
 
+// Recursive function that "floods" the spot clicked revealing all up to the first "number" value
+// Inputs: Handler, row and col value
+// Outputs: None, updates state on the square
 func (handler *Gamehandler) RevealZero(row int, col int) {
 	// Checks to see if coordinate is inside the board if not returns
 	if row < 0 || row >= config.BoardSize || col < 0 || col >= config.BoardSize {
@@ -205,6 +223,9 @@ func (handler *Gamehandler) RevealZero(row int, col int) {
 	}
 }
 
+// Function that handles everything the click needs to do from first click safety to bomb discovered to calling recursive flood function/win condition
+// Inputs: Row/Col and game handler object
+// Outputs: None, ensures proper representation on the 2D-array as well as ending the game if need be by calling win codition
 func (handler *Gamehandler) Click(row, col int) {
 	if handler.gameOver || !isiInbounds(handler, row, col) {
 		return
@@ -239,6 +260,8 @@ func (handler *Gamehandler) Click(row, col int) {
 }
 
 // ToggleFlag flips flag state and checks win.
+// Inputs: row/col and gamehandler object
+// Outputs: Nothing just edits the flagged state
 func (handler *Gamehandler) ToggleFlag(row, col int) {
 	if handler.gameOver || !isiInbounds(handler, row, col) {
 		return
@@ -255,7 +278,9 @@ func (handler *Gamehandler) ToggleFlag(row, col int) {
 	handler.checkWin()
 }
 
-// moveBombFrom relocates a bomb at (row,col) to the first safe non-bomb cell and re-runs AddNumbers.
+// Function that relocates a bomb at (row,col) to the first safe non-bomb cell and re-runs AddNumbers.
+// Inputs: gameHandler object and row/col
+// Outputs: Nothing just regenerates board into a safe "first-click" state
 func (handler *Gamehandler) moveBombFrom(row, col int) {
 	handler.board[row][col].isBomb = false
 
@@ -273,6 +298,9 @@ func (handler *Gamehandler) moveBombFrom(row, col int) {
 	handler.AddNumbers()
 }
 
+// Function that upon losing will be called, just iterates through the cells and if it is a bomb reveals it
+// Inputs: gameHandler object
+// Outputs: None, just edits the board
 func (handler *Gamehandler) revealAllBombs() {
 	for r := 0; r < config.BoardSize; r++ {
 		for c := 0; c < config.BoardSize; c++ {
@@ -283,6 +311,10 @@ func (handler *Gamehandler) revealAllBombs() {
 	}
 }
 
+// Funciton used to check win condition (if all non-bombs uncovered)
+// TODO: Could edit out flag variable and stuff just had that as I thought win condition was "Flag all bombs + uncover all non-bombs" not just the uncover all non-bombs
+// Inputs: gameHandler Object to check board
+// Outputs: checks to see if the game is in a win/lost state and edits that if needed
 func (handler *Gamehandler) checkWin() {
 	if handler.gameOver {
 		return

@@ -5,29 +5,29 @@ Authors: Adam Berry, Barrett Brown, Jonathan Gott, Alex Phibbs, Minh Vu
 Creation Date: 9/11/2025
 
 Description:
-- This file handles the GUI for a Minesweeper game. We're mostly using Fyne for this. It uses the backend stuff from
-game-handler and creates the GUI from that. This will create the visual grid, create the text in each cell (covered, uncovered, or flags).
+- This file handles the GUI for a Minesweeper game. We're mostly using the Fyne GUI library for this. It uses the backend stuff from
+game-handler and creates the GUI from that. This will create the visual grid, create the text in each cell based on the state (covered, uncovered, or flags) and the underlying text.
 It also displays the win/lose message.
 
 Functions:
-- SetupGameGraphics: Initializes all GUI parts for the board
+- SetupGameGraphics: Initializes all GUI parts for the board creating the initial cells/win & lose message (keeping them inivisble)
 
 - Tapped: Handles all left clicks
 
 - TappedSecondary: Handles all right clicks
 
-- applyOverlayStates: Update overlay visibility and colors based on the state of the cell (uncovered, covered, flagged, etc.)
+- applyOverlayStates: Update overlay visibility and colors based on the state of the cell (uncovered, covered, flagged, etc.). This is meant so when updating the states of the cells upon clicking it will properly reflect it on the visual side
 
-- updateCellTexts: Updates the text inside the cell
+- updateCellTexts: Updates the text inside the cell, useful for if the board had to be regenerated due to a "first left click on bomb" as the numbers in the 2d array wouldn't be updated alone by applyOverlayStates
 
-- updateGameUI: Shows some text overlays (i.e. end of game message)
+- updateGameUI: Used to refresh both celltext/overlay states in the correct order as well as check the win condition upon which it will show some text overlays (i.e. end of game message)
 
 Input:
 - Board state from game-handler
 - Player mouse clicks
 
 Output:
-- GUI visual update to the board
+- GUI visual update to the board i.e: uncover/flag
 - End of game messages
 
 */
@@ -65,6 +65,9 @@ type clickableRect struct {
 var _ fyne.Tappable = (*clickableRect)(nil)
 var _ fyne.SecondaryTappable = (*clickableRect)(nil)
 
+/*
+  Called upon left click, will check if game is already over (Not allow gameplay past loss/win) and then afterwards calls game-handler.go's Click function to handle the backend click and then updates the game ui based on what that did
+*/
 func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
 	if c.handler.gameOver {
 		return
@@ -73,6 +76,9 @@ func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
 	updateGameUI(c.handler)
 }
 
+/*
+  Called upon right click, checks if game over and then turns the underlining 2d-array to have a flag state and then refresh the game ui
+*/
 func (c *clickableRect) TappedSecondary(_ *fyne.PointEvent) {
 	if c.handler.gameOver { // ignore flags after game over
 		return
@@ -81,7 +87,7 @@ func (c *clickableRect) TappedSecondary(_ *fyne.PointEvent) {
 	updateGameUI(c.handler)
 }
 
-// Used to simplify r.move() operations
+// Helper function: Used to simplify r.move() operations
 func cellPos(col, row int) fyne.Position {
 	return fyne.NewPos(
 		float32(col*config.GridSpacing),
@@ -90,12 +96,13 @@ func cellPos(col, row int) fyne.Position {
 }
 
 // This Function is Intended to be used as a one time initializer for the game's UI components
-// Inputs: None
+// Inputs: 2D-Array of the board and the gameHandler object to get the context of the object for the click handler
 // Outputs: A fyne container which can store multiple elements
-func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container { //added the game handler to this so it could use the logic from game handler.go Alex
+func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 	var columnNames string = "abcdefghijklmnopqrstuvwxyz"
 
-	// Create "Cells" on top of each box to show/not show depending on state
+	// Initialize storage variables for Overlays/flags/Textboxes
+  // Create "Cells" on top of each box to show/not show depending on state
 	cellOverlays = make([][]*canvas.Rectangle, config.BoardSize)
 	cellFlags = make([][]*canvas.Text, config.BoardSize)
 	for r := range cellOverlays {
@@ -107,8 +114,10 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		cellTexts[r] = make([]*canvas.Text, config.BoardSize)
 	}
 
+  // Used as an array to "loop" over in order so to ensure proper "layering" of each item (did * 5 just to ensure extra space not really needed to be this big)
 	objects := make([]fyne.CanvasObject, 0, (config.BoardSize+1)*(config.BoardSize+1)*5)
 
+  // Loop overboard setting row/column headers (row/col == 0 lines), if the cell is a body cell instead we "draw" the text for that cell (Bomb/neighbors)
 	for row := 0; row < (config.BoardSize + 1); row++ {
 		for col := 0; col < (config.BoardSize + 1); col++ {
 			if row == 0 && col == 0 {
@@ -159,6 +168,8 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		}
 	}
 
+  // As of this point the "cells" above havce the underlining neighbor/bomb/row & col header but the covering "cell" bit that you can click isn't on there so this re loops through and places them
+  // We first create the rectangles objects and place them where they go setting their colors and what not
 	for rw := 0; rw < config.BoardSize; rw++ {
 		for c := 0; c < config.BoardSize; c++ {
 			// overlay rectangle
@@ -195,7 +206,8 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		}
 	}
 
-	// Centered end-game message (hidden initially)
+	// Finally we create the "end game" message object
+  // We also make sure it is centered (hidden initially)
 	gameMsg = canvas.NewText("", color.White)
 	gameMsg.TextStyle.Bold = true
 	gameMsg.TextSize = float32(config.GridSpacing) * 0.9
@@ -208,11 +220,18 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 
 	objects = append(objects, gameMsg)
 
+  // Call to apply overlay states as now that the object itself is "fleshed out" we can actually display it
 	applyOverlayStates(board)
 
 	return container.NewWithoutLayout(objects...)
 }
 
+
+/*
+  Used as a cell refresher, all this does is go back over all the cells in the cell and check state and apply correct cell properties according to it
+  Inputs: 2D-Array of the boards cells
+  Outputs: None, just refreshing the underlying values
+*/
 func applyOverlayStates(board [][]Square) {
 	for r := 0; r < config.BoardSize; r++ {
 		for c := 0; c < config.BoardSize; c++ {
@@ -236,6 +255,11 @@ func applyOverlayStates(board [][]Square) {
 	}
 }
 
+/*
+  Used mainly as a verifier upon the case that cell text values changed, this specifically happens if needing to regenerate the board due to your first click being a bomb
+  Inputs: 2D-Array of the boards cells
+  Outputs: None, just refreshing the underlying values
+*/
 func updateCellTexts(board [][]Square) {
 	for r := 0; r < config.BoardSize; r++ {
 		for c := 0; c < config.BoardSize; c++ {
@@ -270,6 +294,10 @@ func updateCellTexts(board [][]Square) {
 	}
 }
 
+/*
+  Inputs: Game handler object for the context
+  Outputs: None, just refreshes UI/Shows win condition to screen
+*/
 func updateGameUI(h *Gamehandler) {
 	updateCellTexts(h.board)
 	applyOverlayStates(h.board)

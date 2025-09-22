@@ -243,9 +243,11 @@ func updateGameUI(h *Gamehandler) {
   if h.gameOver {
     if h.win {
       gameMsg.Text = "You Win!"
+      gameMsg.TextStyle.Bold = true
       gameMsg.Color = color.RGBA{G: 220, A: 255}
     } else {
       gameMsg.Text = "Game Over"
+      gameMsg.TextStyle.Bold = true
       gameMsg.Color = color.RGBA{R: 220, A: 255}
     }
 

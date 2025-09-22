@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"strconv"
 
 	"minesweeper/config"
@@ -13,11 +14,8 @@ import (
 // LoadSetupInto sets the setup form as content of an existing window.
 // On submit it validates, builds the game UI, and replaces the window content.
 func LoadSetupInto(win fyne.Window) {
-	const minMines = 10
-	const maxMines = 20
-
 	entry := widget.NewEntry()
-	entry.SetPlaceHolder("Enter mine count (10-20)")
+	entry.SetPlaceHolder(fmt.Sprintf("Enter mine count (%d-%d)", config.MinMines, config.MaxMines))
 	entry.SetText("10")
 	errLabel := widget.NewLabel("")
 
@@ -28,8 +26,8 @@ func LoadSetupInto(win fyne.Window) {
 			return
 		}
 		maxAllowed := config.BoardSize*config.BoardSize - 1
-		if n < minMines || n > maxMines {
-			errLabel.SetText("Mine count must be between 10 and 20.")
+		if n < config.MinMines || n > config.MaxMines {
+			errLabel.SetText(fmt.Sprintf("Mine count must be between %d and %d.", config.MinMines, config.MaxMines))
 			return
 		}
 		if n > maxAllowed {
@@ -46,7 +44,7 @@ func LoadSetupInto(win fyne.Window) {
 
 
 	form := container.NewVBox(
-		widget.NewLabel("Select number of mines (10-20):"),
+		widget.NewLabel(fmt.Sprintf("Select number of mines (%d-%d):", config.MinMines, config.MaxMines)),
 		entry,
 		start,
 		errLabel,

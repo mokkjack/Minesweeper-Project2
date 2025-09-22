@@ -1,3 +1,11 @@
+/*
+Authors: Adam Berry, Barrett Brown, Jonathan Gott, Alex Phibbs, Minh Vu
+Creation Date: 9/11/2025
+
+Description: Initializes everything and especially the Fyne app. Sets up the main window and loads
+the setup screen.
+*/
+
 package main
 
 import (

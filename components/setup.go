@@ -2,7 +2,7 @@
 Prologue
 
 Authors: Adam Berry, Barrett Brown, Jonathan Gott, Alex Phibbs, Minh Vu
-Creation Date: 9/11/2025
+Creation Date: 9/21/2025
 
 Description:
 - This file implements the setup screen for the game, where the user is able to choose the number of

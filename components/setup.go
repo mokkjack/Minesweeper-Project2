@@ -38,20 +38,67 @@ import (
 // Inputs: the fyne window itself
 // Outputs: Displays the window for the user
 func LoadSetupInto(win fyne.Window) {
+	modelLabel := widget.NewLabel("Choose Game Mode:")
+	aiButton := widget.NewButton("AI mode", func() {
+		// Zhang: enable AI mode
+		showAImode(win)
+	})
+
+	singleButton := widget.NewButton("Single Player", func() {
+		// Zhang: single player mode
+		showSinglePlayerMode(win)
+	})
+
+	from := container.NewVBox(
+		modelLabel,
+		aiButton,
+		singleButton,
+	)
+	win.SetContent(container.NewPadded(from))
+}
+
+// Zhang: show AI mode setup
+func showAImode(win fyne.Window) {
+	label := widget.NewLabel("Select AI Difficulty:")
+	easy := widget.NewButton("Easy", func() {
+		showMineSetup(win, "AI", "Easy")
+	})
+	// not implemented, but option is set up
+	meduim := widget.NewButton("Medium", func() {
+		showMineSetup(win, "AI", "Medium")
+	})
+	hard := widget.NewButton("Hard", func() {
+		showMineSetup(win, "AI", "Hard")
+	})
+	from := container.NewVBox(label, easy, meduim, hard)
+	win.SetContent(container.NewPadded(from))
+}
+
+// Zhang: show single player mode setup
+func showSinglePlayerMode(win fyne.Window) {
+	label := widget.NewLabel("select Single Player Mode:")
+
+	play := widget.NewButton("Play", func() { showMineSetup(win, "Single", "Play") })
+	solve := widget.NewButton("Solve", func() { showMineSetup(win, "Solve", "Play") })
+	form := container.NewVBox(label, play, solve)
+	win.SetContent(container.NewPadded(form))
+}
+
+func showMineSetup(win fyne.Window, mode string, option string) {
 	entry := widget.NewEntry()
 	entry.SetPlaceHolder(fmt.Sprintf("Enter mine count (%d-%d)", config.MinMines, config.MaxMines))
 	entry.SetText(fmt.Sprintf("%d", config.MinMines))
 	errLabel := widget.NewLabel("")
 
-  // Create the "Setup window start"
+	// Create the "Setup window start"
 	start := widget.NewButton("Start Game", func() {
-    // Checks if entered value is int and not something random
+		// Checks if entered value is int and not something random
 		n, err := strconv.Atoi(entry.Text)
 		if err != nil {
 			errLabel.SetText("Please enter a valid integer.")
 			return
 		}
-    // Bound checks
+		// Bound checks
 		maxAllowed := config.BoardSize*config.BoardSize - 1
 		if n < config.MinMines || n > config.MaxMines {
 			errLabel.SetText(fmt.Sprintf("Mine count must be between %d and %d.", config.MinMines, config.MaxMines))
@@ -61,15 +108,25 @@ func LoadSetupInto(win fyne.Window) {
 			errLabel.SetText("Too many mines for this board size.")
 			return
 		}
-
-		// Build the minesweeper game UI and swap it in to work
 		h := NewGameHandler(n)
+		//Zhang: Apply selected mode
+		if mode == "AI" {
+			h.setAIEnabled(true)
+			h.aiDifficulty = option
+		} else if mode == "Single" && option == "Solve" {
+			fmt.Println("Single Player - Solve mode")
+		}
 		board := GetBoard(&h)
 		ui := SetupGameGraphics(board, &h)
 		win.SetContent(ui)
+		// Build the minesweeper game UI and swap it in to work
+		//h := NewGameHandler(n)
+		//board := GetBoard(&h)
+		//ui := SetupGameGraphics(board, &h)
+		//win.SetContent(ui)
 	})
 
-  // Creates a vertical box and shows it to display the setup to the user
+	// Creates a vertical box and shows it to display the setup to the user
 	form := container.NewVBox(
 		widget.NewLabel(fmt.Sprintf("Select number of mines (%d-%d):", config.MinMines, config.MaxMines)),
 		entry,

@@ -12,19 +12,19 @@ all: build
 # System dependency check (Linux only)
 sysdeps:
 ifeq ($(OS),Linux)
-	@echo "check system update..."
-	sudo apt-get update
-	@echo "Finish system upgrade."
 	@echo "==> Checking system dependencies..."
 	@missing=""; \
 	for pkg in libgl1-mesa-dev libglu1-mesa-dev xorg-dev pkg-config; do \
-		dpkg -s $$pkg >/dev/null 2>&1 || missing="$$missing $$pkg"; \
+		if ! dpkg -s $$pkg >/dev/null 2>&1; then \
+			missing="$$missing $$pkg"; \
+		fi; \
 	done; \
 	if [ -n "$$missing" ]; then \
 		echo "Missing system packages:$$missing"; \
-		echo "Install them with:"; \
-		echo "  sudo apt install$$missing"; \
-		exit 1; \
+		echo "Updating package lists..."; \
+		sudo apt-get update -y; \
+		echo "Installing missing dependencies"; \
+		sudo apt-get install -y $$missing; \
 	else \
 		echo "All system dependencies are installed."; \
 	fi

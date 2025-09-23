@@ -63,18 +63,23 @@ const (
 // Define the square struct, this is used for the cells in ui-handler.go but allows you to see cell state/if cell=bomb and the number of neighbors that cell has (if not bomb)
 type Square struct {
 	state    SquareState // If something is covered/uncovered/flagged
-	isBomb   bool // If something is a bomb
-	numValue int // Neighbor count
+	isBomb   bool        // If something is a bomb
+	numValue int         // Neighbor count
 }
 
 // Gamehandler structs holds the board sets the rng value and whether this is firstclick and if the game is over (win or not) and the total number of mines
 type Gamehandler struct {
 	board      [][]Square // Used to store underlyining board
 	rng        *rand.Rand // Used for bomb generation
-	firstClick bool // Used to ensure if this is first click + bomb we dont insta lose
-	gameOver   bool // Used to ensure no more game/also to trigger win/lost message
-	win        bool // Used to tell ui-handler to show win/lost
-	totalMines int // Used in NewGameHandler
+	firstClick bool       // Used to ensure if this is first click + bomb we dont insta lose
+	gameOver   bool       // Used to ensure no more game/also to trigger win/lost message
+	win        bool       // Used to tell ui-handler to show win/lost
+	totalMines int        // Used in NewGameHandler
+
+	//Zhang: turn-based AI support
+	aiEnabled    bool   // Whether AI is enabled
+	aiTurn       bool   // Whether it's AI's turn
+	aiDifficulty string // use for diffculty selection
 }
 
 // This function creates the game board equipped with mines and numbered squares
@@ -136,12 +141,11 @@ func NewGameHandler(numMines int) Gamehandler {
 		handler.board[row][col].isBomb = true
 	}
 
-  // Called to adjust the "neighbor numbers" of each cell
+	// Called to adjust the "neighbor numbers" of each cell
 	handler.AddNumbers()
 
 	return handler
 }
-
 
 // Function that iterates through the game board and counts all nearby cells and sees how many bombs there are and sets it's numValue equal to that
 // Inputs: handler object containing the game board
@@ -169,7 +173,6 @@ func (handler *Gamehandler) AddNumbers() {
 		}
 	}
 }
-
 
 // Helper function for finding if a row/col is in bounds based on a game bound
 // Inputs: Row/Col and handler object for game board
@@ -276,6 +279,10 @@ func (handler *Gamehandler) ToggleFlag(row, col int) {
 		sq.state = Flagged
 	}
 	handler.checkWin()
+	//Zhang: if AI is enabled, this will it move
+	if handler.aiEnabled {
+		handler.RunAIMove()
+	}
 }
 
 // Function that relocates a bomb at (row,col) to the first safe non-bomb cell and re-runs AddNumbers.
@@ -338,5 +345,26 @@ func (handler *Gamehandler) checkWin() {
 	if allNonBombsUncovered {
 		handler.gameOver = true
 		handler.win = true
+	}
+}
+
+// Zhang: enabled AI functions (temp)
+func (handler *Gamehandler) setAIEnabled(enabled bool) {
+	handler.aiEnabled = enabled
+	handler.aiTurn = false
+}
+
+// Zhang: helper function for AI to take it move
+func (handler *Gamehandler) RunAIMove() {
+	if !handler.aiEnabled || handler.gameOver {
+		return
+	}
+	switch handler.aiDifficulty {
+	case "Easy":
+		EasyAIMove(handler)
+	case "Medium":
+		//to be define
+	case "Hard":
+		//to be define
 	}
 }

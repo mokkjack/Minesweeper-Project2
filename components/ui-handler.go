@@ -63,25 +63,46 @@ var _ fyne.Tappable = (*clickableRect)(nil)
 var _ fyne.SecondaryTappable = (*clickableRect)(nil)
 
 /*
-  Called upon left click, will check if game is already over (Not allow gameplay past loss/win) and then afterwards calls game-handler.go's Click function to handle the backend click and then updates the game ui based on what that did
+Called upon left click, will check if game is already over (Not allow gameplay past loss/win) and then afterwards calls game-handler.go's Click function to handle the backend click and then updates the game ui based on what that did
 */
 func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
 	if c.handler.gameOver {
 		return
 	}
+	// Zhang: prevent user from clicking when it's AI's turn
+	if c.handler.aiEnabled && c.handler.aiTurn {
+		return
+	}
 	c.handler.Click(c.row, c.col)
 	updateGameUI(c.handler)
+
+	if c.handler.aiEnabled && !c.handler.gameOver {
+		c.handler.aiTurn = true
+		EasyAIMove(c.handler)
+		c.handler.aiTurn = false
+		updateGameUI(c.handler)
+	}
 }
 
 /*
-  Called upon right click, checks if game over and then turns the underlining 2d-array to have a flag state and then refresh the game ui
+Called upon right click, checks if game over and then turns the underlining 2d-array to have a flag state and then refresh the game ui
 */
 func (c *clickableRect) TappedSecondary(_ *fyne.PointEvent) {
 	if c.handler.gameOver { // ignore flags after game over
 		return
 	}
+	if c.handler.aiEnabled && c.handler.aiTurn { // Zhang: prevent user from flagging when it's AI's turn
+		return
+	}
 	c.handler.ToggleFlag(c.row, c.col)
 	updateGameUI(c.handler)
+
+	if c.handler.aiEnabled && !c.handler.gameOver { // Zhang: let AI make a move after user right clicks
+		c.handler.aiTurn = true
+		EasyAIMove(c.handler)
+		c.handler.aiTurn = false
+		updateGameUI(c.handler)
+	}
 }
 
 // Helper function: Used to simplify r.move() operations
@@ -99,7 +120,7 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 	var columnNames string = "abcdefghijklmnopqrstuvwxyz"
 
 	// Initialize storage variables for Overlays/flags/Textboxes
-  // Create "Cells" on top of each box to show/not show depending on state
+	// Create "Cells" on top of each box to show/not show depending on state
 	cellOverlays = make([][]*canvas.Rectangle, config.BoardSize)
 	cellFlags = make([][]*canvas.Text, config.BoardSize)
 	for r := range cellOverlays {
@@ -111,10 +132,10 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		cellTexts[r] = make([]*canvas.Text, config.BoardSize)
 	}
 
-  // Used as an array to "loop" over in order so to ensure proper "layering" of each item (did * 5 just to ensure extra space not really needed to be this big)
+	// Used as an array to "loop" over in order so to ensure proper "layering" of each item (did * 5 just to ensure extra space not really needed to be this big)
 	objects := make([]fyne.CanvasObject, 0, (config.BoardSize+1)*(config.BoardSize+1)*5)
 
-  // Loop overboard setting row/column headers (row/col == 0 lines), if the cell is a body cell instead we "draw" the text for that cell (Bomb/neighbors)
+	// Loop overboard setting row/column headers (row/col == 0 lines), if the cell is a body cell instead we "draw" the text for that cell (Bomb/neighbors)
 	for row := 0; row < (config.BoardSize + 1); row++ {
 		for col := 0; col < (config.BoardSize + 1); col++ {
 			if row == 0 && col == 0 {
@@ -163,8 +184,8 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		}
 	}
 
-  // As of this point the "cells" above havce the underlining neighbor/bomb/row & col header but the covering "cell" bit that you can click isn't on there so this re loops through and places them
-  // We first create the rectangles objects and place them where they go setting their colors and what not
+	// As of this point the "cells" above havce the underlining neighbor/bomb/row & col header but the covering "cell" bit that you can click isn't on there so this re loops through and places them
+	// We first create the rectangles objects and place them where they go setting their colors and what not
 	for rw := 0; rw < config.BoardSize; rw++ {
 		for c := 0; c < config.BoardSize; c++ {
 			// overlay rectangle
@@ -202,7 +223,7 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 	}
 
 	// Finally we create the "end game" message object
-  // We also make sure it is centered (hidden initially)
+	// We also make sure it is centered (hidden initially)
 	gameMsg = canvas.NewText("", color.White)
 	gameMsg.TextStyle.Bold = true
 	gameMsg.TextSize = float32(config.GridSpacing) * 0.9
@@ -215,17 +236,16 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 
 	objects = append(objects, gameMsg)
 
-  // Call to apply overlay states as now that the object itself is "fleshed out" we can actually display it
+	// Call to apply overlay states as now that the object itself is "fleshed out" we can actually display it
 	applyOverlayStates(board)
 
 	return container.NewWithoutLayout(objects...)
 }
 
-
 /*
-  Used as a cell refresher, all this does is go back over all the cells in the cell and check state and apply correct cell properties according to it
-  Inputs: 2D-Array of the boards cells
-  Outputs: None, just refreshing the underlying values
+Used as a cell refresher, all this does is go back over all the cells in the cell and check state and apply correct cell properties according to it
+Inputs: 2D-Array of the boards cells
+Outputs: None, just refreshing the underlying values
 */
 func applyOverlayStates(board [][]Square) {
 	for r := 0; r < config.BoardSize; r++ {
@@ -251,9 +271,9 @@ func applyOverlayStates(board [][]Square) {
 }
 
 /*
-  Used mainly as a verifier upon the case that cell text values changed, this specifically happens if needing to regenerate the board due to your first click being a bomb
-  Inputs: 2D-Array of the boards cells
-  Outputs: None, just refreshing the underlying values
+Used mainly as a verifier upon the case that cell text values changed, this specifically happens if needing to regenerate the board due to your first click being a bomb
+Inputs: 2D-Array of the boards cells
+Outputs: None, just refreshing the underlying values
 */
 func updateCellTexts(board [][]Square) {
 	for r := 0; r < config.BoardSize; r++ {
@@ -290,8 +310,8 @@ func updateCellTexts(board [][]Square) {
 }
 
 /*
-  Inputs: Game handler object for the context
-  Outputs: None, just refreshes UI/Shows win condition to screen
+Inputs: Game handler object for the context
+Outputs: None, just refreshes UI/Shows win condition to screen
 */
 func updateGameUI(h *Gamehandler) {
 	updateCellTexts(h.board)

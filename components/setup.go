@@ -24,9 +24,9 @@ package components
 
 import (
 	"fmt"
-	"strconv"
 	"image/color"
 	"minesweeper/config"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -41,12 +41,12 @@ import (
 func LoadSetupInto(win fyne.Window) {
 	title := canvas.NewText("MINESWEEPER", color.RGBA{0, 255, 0, 255})
 	title.TextStyle = fyne.TextStyle{Bold: true}
-	title. TextSize = 32
+	title.TextSize = 32
 	titlePlace := container.NewCenter(title)
 	playButton := widget.NewButton("Play Game", func() {
 		gameSelect(win)
 	})
-	exitButton := widget.NewButton("Exit", func(){
+	exitButton := widget.NewButton("Exit", func() {
 		win.Close()
 	})
 
@@ -58,7 +58,7 @@ func LoadSetupInto(win fyne.Window) {
 
 	win.SetContent(container.NewPadded(from))
 }
-func gameSelect(win fyne.Window){
+func gameSelect(win fyne.Window) {
 	modelLabel := widget.NewLabel("Choose Game Mode:")
 	aiButton := widget.NewButton("AI mode", func() {
 		// Zhang: enable AI mode
@@ -77,6 +77,7 @@ func gameSelect(win fyne.Window){
 	)
 	win.SetContent(container.NewPadded(from))
 }
+
 // Zhang: show AI mode setup
 func showAImode(win fyne.Window) {
 	label := widget.NewLabel("Select AI Difficulty:")
@@ -131,19 +132,15 @@ func showMineSetup(win fyne.Window, mode string, option string) {
 		h := NewGameHandler(n)
 		//Zhang: Apply selected mode
 		if mode == "AI" {
-			//h.setAIEnabled(true) Alex: These were giving me trouble and I couldn't run the program, Probably because they weren't doing anything atm
-			//h.aiDifficulty = option 
+			h.setAIEnabled(true)
+			h.aiDifficulty = option
 		} else if mode == "Single" && option == "Solve" {
 			fmt.Println("Single Player - Solve mode")
 		}
+
 		board := GetBoard(&h)
 		ui := SetupGameGraphics(board, &h)
 		win.SetContent(ui)
-		// Build the minesweeper game UI and swap it in to work
-		//h := NewGameHandler(n)
-		//board := GetBoard(&h)
-		//ui := SetupGameGraphics(board, &h)
-		//win.SetContent(ui)
 	})
 
 	// Creates a vertical box and shows it to display the setup to the user

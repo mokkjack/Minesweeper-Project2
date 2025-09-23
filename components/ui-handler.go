@@ -297,12 +297,12 @@ func updateGameUI(h *Gamehandler) {
 	updateCellTexts(h.board)
 	applyOverlayStates(h.board)
 
-	if h.gameOver {
+	if h.gameOver { //play again + title button
 		if h.win {
 			gameMsg.Text = "You Win!"
 			gameMsg.TextStyle.Bold = true
 			gameMsg.Color = color.RGBA{R: 255, G: 222, B: 33, A: 255}
-		} else {
+		} else { 
 			gameMsg.Text = "Game Over"
 			gameMsg.TextStyle.Bold = true
 			gameMsg.Color = color.RGBA{R: 220, A: 255}

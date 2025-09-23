@@ -131,8 +131,8 @@ func showMineSetup(win fyne.Window, mode string, option string) {
 		h := NewGameHandler(n)
 		//Zhang: Apply selected mode
 		if mode == "AI" {
-			//h.setAIEnabled(true) Alex: These were giving me trouble and I couldn't run the program, 
-			//h.aiDifficulty = option Probably because they weren't doing anything atm
+			//h.setAIEnabled(true) Alex: These were giving me trouble and I couldn't run the program, Probably because they weren't doing anything atm
+			//h.aiDifficulty = option 
 		} else if mode == "Single" && option == "Solve" {
 			fmt.Println("Single Player - Solve mode")
 		}

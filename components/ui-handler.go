@@ -43,6 +43,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
+
 )
 
 var (
@@ -50,6 +52,10 @@ var (
 	cellFlags    [][]*canvas.Text
 	cellTexts    [][]*canvas.Text
 	gameMsg      *canvas.Text
+
+	gameOverContainer *fyne.Container
+	newGameButton *widget.Button
+	titleScreenButton *widget.Button
 )
 
 type clickableRect struct {
@@ -228,13 +234,38 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 	gameMsg.TextStyle.Bold = true
 	gameMsg.TextSize = float32(config.GridSpacing) * 0.9
 
+	newGameButton = widget.NewButton("Restart", func() {
+		win := fyne.CurrentApp().Driver().AllWindows()[0]
+		mineCount := handler.totalMines
+		h := NewGameHandler(mineCount)
+		if handler.aiEnabled{
+			h.setAIEnabled(true)
+			h.aiDifficulty = handler.aiDifficulty
+		}
+		board := GetBoard(&h)
+		ui := SetupGameGraphics(board, &h)
+		win.SetContent(ui)
+	})
+
+	titleScreenButton = widget.NewButton("Title Screen", func() {
+		win := fyne.CurrentApp().Driver().AllWindows()[0]
+		LoadSetupInto(win)
+	})
+
+	gameOverContainer = container.NewVBox(
+		gameMsg,
+		container.NewHBox(
+			newGameButton,
+			titleScreenButton,
+		),
+	)
 	// center over the whole board (headers + grid)
 	totalPx := float32(config.GridSpacing * (config.BoardSize + 1))
-	ms := gameMsg.MinSize()
-	gameMsg.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
-	gameMsg.Hide()
+	ms := gameOverContainer.MinSize()
+	gameOverContainer.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
+	gameOverContainer.Hide()
 
-	objects = append(objects, gameMsg)
+	objects = append(objects, gameOverContainer)
 
 	// Call to apply overlay states as now that the object itself is "fleshed out" we can actually display it
 	applyOverlayStates(board)
@@ -327,14 +358,15 @@ func updateGameUI(h *Gamehandler) {
 			gameMsg.TextStyle.Bold = true
 			gameMsg.Color = color.RGBA{R: 220, A: 255}
 		}
+		gameMsg.Refresh()
 
 		totalPx := float32(config.GridSpacing * (config.BoardSize + 1))
-		ms := gameMsg.MinSize()
-		gameMsg.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
+		ms := gameOverContainer.MinSize()
+		gameOverContainer.Move(fyne.NewPos((totalPx-ms.Width)/2, (totalPx-ms.Height)/2))
 
-		gameMsg.Show()
-		gameMsg.Refresh()
+		gameOverContainer.Show()
+		gameOverContainer.Refresh()
 	} else {
-		gameMsg.Hide()
+		gameOverContainer.Hide()
 	}
 }

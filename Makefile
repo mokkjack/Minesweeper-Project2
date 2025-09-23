@@ -12,6 +12,9 @@ all: build
 # System dependency check (Linux only)
 sysdeps:
 ifeq ($(OS),Linux)
+	@echo "check system update..."
+	sudo apt-get update
+	@echo "Finish system upgrade."
 	@echo "==> Checking system dependencies..."
 	@missing=""; \
 	for pkg in libgl1-mesa-dev libglu1-mesa-dev xorg-dev pkg-config; do \

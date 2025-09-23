@@ -25,10 +25,11 @@ package components
 import (
 	"fmt"
 	"strconv"
-
+	"image/color"
 	"minesweeper/config"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
@@ -38,6 +39,26 @@ import (
 // Inputs: the fyne window itself
 // Outputs: Displays the window for the user
 func LoadSetupInto(win fyne.Window) {
+	title := canvas.NewText("MINESWEEPER", color.RGBA{0, 255, 0, 255})
+	title.TextStyle = fyne.TextStyle{Bold: true}
+	title. TextSize = 32
+	titlePlace := container.NewCenter(title)
+	playButton := widget.NewButton("Play Game", func() {
+		gameSelect(win)
+	})
+	exitButton := widget.NewButton("Exit", func(){
+		win.Close()
+	})
+
+	from := container.NewVBox(
+		titlePlace,
+		playButton,
+		exitButton,
+	)
+
+	win.SetContent(container.NewPadded(from))
+}
+func gameSelect(win fyne.Window){
 	modelLabel := widget.NewLabel("Choose Game Mode:")
 	aiButton := widget.NewButton("AI mode", func() {
 		// Zhang: enable AI mode
@@ -56,7 +77,6 @@ func LoadSetupInto(win fyne.Window) {
 	)
 	win.SetContent(container.NewPadded(from))
 }
-
 // Zhang: show AI mode setup
 func showAImode(win fyne.Window) {
 	label := widget.NewLabel("Select AI Difficulty:")
@@ -111,8 +131,8 @@ func showMineSetup(win fyne.Window, mode string, option string) {
 		h := NewGameHandler(n)
 		//Zhang: Apply selected mode
 		if mode == "AI" {
-			h.setAIEnabled(true)
-			h.aiDifficulty = option
+			//h.setAIEnabled(true) Alex: These were giving me trouble and I couldn't run the program, 
+			//h.aiDifficulty = option Probably because they weren't doing anything atm
 		} else if mode == "Single" && option == "Solve" {
 			fmt.Println("Single Player - Solve mode")
 		}

@@ -85,13 +85,13 @@ func showAImode(win fyne.Window) {
 		showMineSetup(win, "AI", "Easy")
 	})
 	// not implemented, but option is set up
-	meduim := widget.NewButton("Medium", func() {
+	medium := widget.NewButton("Medium", func() {
 		showMineSetup(win, "AI", "Medium")
 	})
 	hard := widget.NewButton("Hard", func() {
 		showMineSetup(win, "AI", "Hard")
 	})
-	from := container.NewVBox(label, easy, meduim, hard)
+	from := container.NewVBox(label, easy, medium, hard)
 	win.SetContent(container.NewPadded(from))
 }
 

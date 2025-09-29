@@ -39,13 +39,18 @@ import (
 // Inputs: the fyne window itself
 // Outputs: Displays the window for the user
 func LoadSetupInto(win fyne.Window) {
+	//Title Card
 	title := canvas.NewText("MINESWEEPER", color.RGBA{0, 255, 0, 255})
 	title.TextStyle = fyne.TextStyle{Bold: true}
 	title.TextSize = 32
 	titlePlace := container.NewCenter(title)
+
+	//Play Button
 	playButton := widget.NewButton("Play Game", func() {
 		gameSelect(win)
 	})
+
+	//Exit Button
 	exitButton := widget.NewButton("Exit", func() {
 		win.Close()
 	})
@@ -58,27 +63,40 @@ func LoadSetupInto(win fyne.Window) {
 
 	win.SetContent(container.NewPadded(from))
 }
+
+//Game Select Screen
 func gameSelect(win fyne.Window) {
 	modelLabel := widget.NewLabel("Choose Game Mode:")
-	aiButton := widget.NewButton("AI mode", func() {
-		// Zhang: enable AI mode
-		showAImode(win)
+	
+	// Zhang: single player mode
+	singleButton := widget.NewButton("Single Player", func() {
+		showSinglePlayerMode(win)
 	})
 
-	singleButton := widget.NewButton("Single Player", func() {
-		// Zhang: single player mode
-		showSinglePlayerMode(win)
+	// Zhang: enable AI mode
+	aiButton := widget.NewButton("AI mode", func() {
+		showAImode(win)
 	})
 
 	from := container.NewVBox(
 		modelLabel,
-		aiButton,
 		singleButton,
+		aiButton,
 	)
 	win.SetContent(container.NewPadded(from))
 }
 
-// Zhang: show AI mode setup
+// Single Player Mode Screen || Zhang: show single player mode setup
+func showSinglePlayerMode(win fyne.Window) {
+	label := widget.NewLabel("select Single Player Mode:")
+
+	play := widget.NewButton("Play", func() { showMineSetup(win, "Single", "Play") })
+	solve := widget.NewButton("Solve", func() { showMineSetup(win, "Solve", "Play") })
+	form := container.NewVBox(label, play, solve)
+	win.SetContent(container.NewPadded(form))
+}
+
+// AI Mode Screen || Zhang: show AI mode setup
 func showAImode(win fyne.Window) {
 	label := widget.NewLabel("Select AI Difficulty:")
 	easy := widget.NewButton("Easy", func() {
@@ -95,16 +113,7 @@ func showAImode(win fyne.Window) {
 	win.SetContent(container.NewPadded(from))
 }
 
-// Zhang: show single player mode setup
-func showSinglePlayerMode(win fyne.Window) {
-	label := widget.NewLabel("select Single Player Mode:")
-
-	play := widget.NewButton("Play", func() { showMineSetup(win, "Single", "Play") })
-	solve := widget.NewButton("Solve", func() { showMineSetup(win, "Solve", "Play") })
-	form := container.NewVBox(label, play, solve)
-	win.SetContent(container.NewPadded(form))
-}
-
+//Mine Setup Screen
 func showMineSetup(win fyne.Window, mode string, option string) {
 	entry := widget.NewEntry()
 	entry.SetPlaceHolder(fmt.Sprintf("Enter mine count (%d-%d)", config.MinMines, config.MaxMines))

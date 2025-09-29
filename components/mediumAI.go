@@ -13,13 +13,17 @@ import (
 
 //Function
 func MediumAIMove(handler *Gamehandler) bool {
-	if handler == nil || handler.gameOver return false //Check game condition
+	if handler == nil || handler.gameOver {
+		return false
+	}
 
 	var rng *rand.Rand
 
 	if handler.rng == nil {
 		rng = rand.New(rand.NewSource(time.Now().UnixNano()))
-	} else rng = handler.rng
+	} else { 
+		rng = handler.rng
+	}
 
 	type cell struct { r, c int }
 

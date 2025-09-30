@@ -1,4 +1,4 @@
-//Zhang: easy AI mode
+// Zhang: easy AI mode
 package components
 
 import (
@@ -7,18 +7,19 @@ import (
 
 	"minesweeper/config"
 )
-//function for easy AI
+
+// function for easy AI
 func EasyAIMove(handler *Gamehandler) bool {
 	//check game condition
 	if handler == nil || handler.gameOver {
 		return false
 	}
-	//declare variable for random 
+	//declare variable for random
 	var rng *rand.Rand
 	//created rng if it not created
 	if handler.rng == nil {
 		rng = rand.New(rand.NewSource(time.Now().UnixNano()))
-	//if there is one, use that created one instead
+		//if there is one, use that created one instead
 	} else {
 		rng = handler.rng
 	}

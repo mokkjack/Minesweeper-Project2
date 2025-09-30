@@ -46,6 +46,7 @@ Outputs:
 package components
 
 import (
+	"fmt"
 	"math/rand"
 	"minesweeper/config"
 	"time"
@@ -80,6 +81,7 @@ type Gamehandler struct {
 	aiEnabled    bool   // Whether AI is enabled
 	aiTurn       bool   // Whether it's AI's turn
 	aiDifficulty string // use for diffculty selection
+	aiSolver     bool   // Whether Solver mode is enabled
 }
 
 // This function creates the game board equipped with mines and numbered squares
@@ -354,13 +356,31 @@ func (handler *Gamehandler) setAIEnabled(enabled bool) {
 	handler.aiTurn = false
 }
 
+func (handler *Gamehandler) setSolverEnabled(enabled bool) {
+	handler.aiEnabled = enabled
+	handler.aiSolver = enabled
+	handler.aiTurn = false
+}
+
 // Zhang: helper function for AI to take it move
 func (handler *Gamehandler) RunAIMove() {
 	if !handler.aiEnabled || handler.gameOver {
 		return
 	}
+	fmt.Println("AI Difficulty: ", handler.aiDifficulty)
 	switch handler.aiDifficulty {
 	case "Easy":
+		fmt.Print("AI Easy Move\n")
+		if handler.aiSolver {
+			for !handler.gameOver {
+				fmt.Println("AI Solver making a move...")
+				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
+				moved := EasyAIMove(handler)
+				if !moved {
+					return // no moves left
+				}
+			}
+		}
 		EasyAIMove(handler)
 	case "Medium":
 		//to be define

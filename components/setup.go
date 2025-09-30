@@ -64,24 +64,25 @@ func LoadSetupInto(win fyne.Window) {
 	win.SetContent(container.NewPadded(from))
 }
 
-//Game Select Screen
+// Game Select Screen
 func gameSelect(win fyne.Window) {
 	modelLabel := widget.NewLabel("Choose Game Mode:")
-	
-	// Zhang: single player mode
+
 	singleButton := widget.NewButton("Single Player", func() {
 		showSinglePlayerMode(win)
 	})
-
-	// Zhang: enable AI mode
-	aiButton := widget.NewButton("AI mode", func() {
-		showAImode(win)
+	aiButton := widget.NewButton("AI 1v1 Mode", func() {
+		showAImode(win, "comp")
+	})
+	solverButton := widget.NewButton("AI Solver Mode", func() {
+		showAImode(win, "Solver")
 	})
 
 	from := container.NewVBox(
 		modelLabel,
 		singleButton,
 		aiButton,
+		solverButton,
 	)
 	win.SetContent(container.NewPadded(from))
 }
@@ -97,23 +98,34 @@ func showSinglePlayerMode(win fyne.Window) {
 }
 
 // AI Mode Screen || Zhang: show AI mode setup
-func showAImode(win fyne.Window) {
+func showAImode(win fyne.Window, mode string) {
 	label := widget.NewLabel("Select AI Difficulty:")
 	easy := widget.NewButton("Easy", func() {
-		showMineSetup(win, "AI", "Easy")
+		if mode == "comp" {
+			showMineSetup(win, "AI", "Easy")
+		} else {
+			showMineSetup(win, "Solve", "Easy")
+		}
 	})
-	// not implemented, but option is set up
 	medium := widget.NewButton("Medium", func() {
-		showMineSetup(win, "AI", "Medium")
+		if mode == "comp" {
+			showMineSetup(win, "AI", "Medium")
+		} else {
+			showMineSetup(win, "Solve", "Medium")
+		}
 	})
 	hard := widget.NewButton("Hard", func() {
-		showMineSetup(win, "AI", "Hard")
+		if mode == "comp" {
+			showMineSetup(win, "AI", "Hard")
+		} else {
+			showMineSetup(win, "Solve", "Hard")
+		}
 	})
 	from := container.NewVBox(label, easy, medium, hard)
 	win.SetContent(container.NewPadded(from))
 }
 
-//Mine Setup Screen
+// Mine Setup Screen
 func showMineSetup(win fyne.Window, mode string, option string) {
 	entry := widget.NewEntry()
 	entry.SetPlaceHolder(fmt.Sprintf("Enter mine count (%d-%d)", config.MinMines, config.MaxMines))
@@ -140,11 +152,15 @@ func showMineSetup(win fyne.Window, mode string, option string) {
 		}
 		h := NewGameHandler(n)
 		//Zhang: Apply selected mode
+		fmt.Print("Selected mode: ", mode, " with option: ", option, "\n")
 		if mode == "AI" {
 			h.setAIEnabled(true)
 			h.aiDifficulty = option
-		} else if mode == "Single" && option == "Solve" {
+		} else if mode == "Solve" {
 			fmt.Println("Single Player - Solve mode")
+			h.setSolverEnabled(true)
+			h.aiDifficulty = option
+			h.RunAIMove() // Make the first AI move if in solver mode, ISSUE IS THAT IT DOESNT UPDATE GRAPHICS
 		}
 
 		board := GetBoard(&h)

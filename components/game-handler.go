@@ -381,13 +381,9 @@ func (handler *Gamehandler) RunAIMove() {
 	case "Medium":
 		if handler.aiSolver {
 			for !handler.gameOver {
-				handler.aiTurn = true
 				fmt.Println("AI Solver making a move...")
+				MediumAIMove(handler)
 				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
-				moved := MediumAIMove(handler)
-				if !moved {
-					return // no moves left
-				}
 			}
 		} else {
 			MediumAIMove(handler)
@@ -395,13 +391,9 @@ func (handler *Gamehandler) RunAIMove() {
 	case "Hard":
 		if handler.aiSolver {
 			for !handler.gameOver {
-				handler.aiTurn = true
 				fmt.Println("AI Solver making a move...")
+				HardAIMove(handler)
 				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
-				moved := HardAIMove(handler)
-				if !moved {
-					return // no moves left
-				}
 			}
 		} else {
 			HardAIMove(handler)

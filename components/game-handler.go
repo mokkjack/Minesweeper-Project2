@@ -260,7 +260,7 @@ func (handler *Gamehandler) Click(row, col int) {
 	} else {
 		sq.state = Uncovered
 	}
-
+	UpdateGameUI(handler)
 	handler.checkWin()
 }
 
@@ -359,28 +359,22 @@ func (handler *Gamehandler) setAIEnabled(enabled bool) {
 }
 
 func (handler *Gamehandler) setSolverEnabled(enabled bool) {
-	handler.aiEnabled = enabled
-	handler.aiSolver = enabled
+	handler.aiSolver = true
 	handler.aiTurn = false
 }
 
 // Zhang: helper function for AI to take it move
 func (handler *Gamehandler) RunAIMove() {
-	if !handler.aiEnabled || handler.gameOver {
+	if handler.gameOver {
 		return
 	}
+	fmt.Println("aiDifficulty: ", handler.aiDifficulty)
 	switch handler.aiDifficulty {
 	case "Easy":
 		if handler.aiSolver {
-			for !handler.gameOver {
-				handler.aiTurn = true
-				fmt.Println("AI Solver making a move...")
-				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
-				moved := EasyAIMove(handler)
-				if !moved {
-					return // no moves left
-				}
-			}
+			fmt.Println("AI Solver making a move...")
+			EasyAIMove(handler)
+			time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
 		} else {
 			EasyAIMove(handler)
 		}

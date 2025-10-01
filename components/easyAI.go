@@ -46,7 +46,6 @@ func EasyAIMove(handler *Gamehandler) bool {
 
 	// Highlight the square as clicked by the AI
 	handler.board[move.r][move.c].markedByAI = true
-	updateGameUI(handler) // Update the UI to show the highlight
 
 	//perform the click function
 	handler.Click(move.r, move.c)

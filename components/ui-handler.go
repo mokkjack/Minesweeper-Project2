@@ -20,7 +20,7 @@ Functions:
 
 - updateCellTexts: Updates the text inside the cell, useful for if the board had to be regenerated due to a "first left click on bomb" as the numbers in the 2d array wouldn't be updated alone by applyOverlayStates
 
-- updateGameUI: Used to refresh both celltext/overlay states in the correct order as well as check the win condition upon which it will show some text overlays (i.e. end of game message)
+- UpdateGameUI: Used to refresh both celltext/overlay states in the correct order as well as check the win condition upon which it will show some text overlays (i.e. end of game message)
 
 Input:
 - Board state from game-handler
@@ -36,6 +36,7 @@ package components
 
 import (
 	"minesweeper/config"
+	"time"
 
 	"image/color"
 	"strconv"
@@ -79,13 +80,23 @@ func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
 		return
 	}
 	c.handler.Click(c.row, c.col)
-	updateGameUI(c.handler)
+	UpdateGameUI(c.handler)
 
 	if c.handler.aiEnabled && !c.handler.gameOver {
 		c.handler.aiTurn = true
-		EasyAIMove(c.handler)
+		c.handler.RunAIMove()
 		c.handler.aiTurn = false
-		updateGameUI(c.handler)
+		UpdateGameUI(c.handler)
+	} else if c.handler.aiSolver && !c.handler.gameOver {
+		c.handler.aiTurn = true
+		go func() { // Run the AI solver in a separate goroutine
+			for !c.handler.gameOver {
+				c.handler.RunAIMove()
+				UpdateGameUI(c.handler)
+				time.Sleep(1000 * time.Millisecond) // Pause for one second between moves
+			}
+			c.handler.aiTurn = false
+		}()
 	}
 }
 
@@ -100,13 +111,13 @@ func (c *clickableRect) TappedSecondary(_ *fyne.PointEvent) {
 		return
 	}
 	c.handler.ToggleFlag(c.row, c.col)
-	updateGameUI(c.handler)
+	UpdateGameUI(c.handler)
 
 	if c.handler.aiEnabled && !c.handler.gameOver { // Zhang: let AI make a move after user right clicks
 		c.handler.aiTurn = true
 		EasyAIMove(c.handler)
 		c.handler.aiTurn = false
-		updateGameUI(c.handler)
+		UpdateGameUI(c.handler)
 	}
 }
 
@@ -347,10 +358,9 @@ func updateCellTexts(board [][]Square) {
 Inputs: Game handler object for the context
 Outputs: None, just refreshes UI/Shows win condition to screen
 */
-func updateGameUI(h *Gamehandler) {
+func UpdateGameUI(h *Gamehandler) {
 	updateCellTexts(h.board)
 	applyOverlayStates(h.board)
-
 	if h.gameOver { //play again + title button
 		if h.win {
 			gameMsg.Text = "You Win!"

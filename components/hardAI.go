@@ -1,5 +1,4 @@
 //hardAI.go
-//Evan: 9/29/25 >> 1 hour
 
 // Import Libaries
 package components

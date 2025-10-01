@@ -44,7 +44,6 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-
 )
 
 var (
@@ -54,7 +53,7 @@ var (
 	gameMsg      *canvas.Text
 
 	gameOverContainer *fyne.Container
-	newGameButton *widget.Button
+	newGameButton     *widget.Button
 	titleScreenButton *widget.Button
 )
 
@@ -238,7 +237,7 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		win := fyne.CurrentApp().Driver().AllWindows()[0]
 		mineCount := handler.totalMines
 		h := NewGameHandler(mineCount)
-		if handler.aiEnabled{
+		if handler.aiEnabled {
 			h.setAIEnabled(true)
 			h.aiDifficulty = handler.aiDifficulty
 		}
@@ -336,6 +335,10 @@ func updateCellTexts(board [][]Square) {
 				t.Move(fyne.NewPos(x, y))
 				t.Refresh()
 			}
+			if board[r][c].markedByAI {
+				t.Color = color.RGBA{255, 255, 0, 255} // Yellow
+			}
+			t.Refresh()
 		}
 	}
 }
@@ -353,7 +356,7 @@ func updateGameUI(h *Gamehandler) {
 			gameMsg.Text = "You Win!"
 			gameMsg.TextStyle.Bold = true
 			gameMsg.Color = color.RGBA{R: 255, G: 222, B: 33, A: 255}
-		} else { 
+		} else {
 			gameMsg.Text = "Game Over"
 			gameMsg.TextStyle.Bold = true
 			gameMsg.Color = color.RGBA{R: 220, A: 255}

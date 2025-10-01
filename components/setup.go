@@ -160,12 +160,11 @@ func showMineSetup(win fyne.Window, mode string, option string) {
 			fmt.Println("Single Player - Solve mode")
 			h.setSolverEnabled(true)
 			h.aiDifficulty = option
-			h.RunAIMove() // Make the first AI move if in solver mode, ISSUE IS THAT IT DOESNT UPDATE GRAPHICS
 		}
-
 		board := GetBoard(&h)
 		ui := SetupGameGraphics(board, &h)
 		win.SetContent(ui)
+
 	})
 
 	// Creates a vertical box and shows it to display the setup to the user

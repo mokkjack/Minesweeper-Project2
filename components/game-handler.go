@@ -63,9 +63,10 @@ const (
 
 // Define the square struct, this is used for the cells in ui-handler.go but allows you to see cell state/if cell=bomb and the number of neighbors that cell has (if not bomb)
 type Square struct {
-	state    SquareState // If something is covered/uncovered/flagged
-	isBomb   bool        // If something is a bomb
-	numValue int         // Neighbor count
+	state      SquareState // If something is covered/uncovered/flagged
+	isBomb     bool        // If something is a bomb
+	numValue   int         // Neighbor count
+	markedByAI bool        // Whether the square was clicked by the AI
 }
 
 // Gamehandler structs holds the board sets the rng value and whether this is firstclick and if the game is over (win or not) and the total number of mines
@@ -246,7 +247,6 @@ func (handler *Gamehandler) Click(row, col int) {
 	if sq.state == Flagged || sq.state == Uncovered {
 		return
 	}
-
 	if sq.isBomb {
 		// lose
 		handler.gameOver = true
@@ -277,14 +277,16 @@ func (handler *Gamehandler) ToggleFlag(row, col int) {
 	}
 	if sq.state == Flagged {
 		sq.state = Covered
+		if handler.aiEnabled {
+			handler.aiTurn = true
+		}
 	} else {
 		sq.state = Flagged
+		if handler.aiEnabled {
+			handler.aiTurn = true
+		}
 	}
 	handler.checkWin()
-	//Zhang: if AI is enabled, this will it move
-	if handler.aiEnabled {
-		handler.RunAIMove()
-	}
 }
 
 // Function that relocates a bomb at (row,col) to the first safe non-bomb cell and re-runs AddNumbers.
@@ -367,12 +369,11 @@ func (handler *Gamehandler) RunAIMove() {
 	if !handler.aiEnabled || handler.gameOver {
 		return
 	}
-	fmt.Println("AI Difficulty: ", handler.aiDifficulty)
 	switch handler.aiDifficulty {
 	case "Easy":
-		fmt.Print("AI Easy Move\n")
 		if handler.aiSolver {
 			for !handler.gameOver {
+				handler.aiTurn = true
 				fmt.Println("AI Solver making a move...")
 				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
 				moved := EasyAIMove(handler)
@@ -380,11 +381,36 @@ func (handler *Gamehandler) RunAIMove() {
 					return // no moves left
 				}
 			}
+		} else {
+			EasyAIMove(handler)
 		}
-		EasyAIMove(handler)
 	case "Medium":
-		//to be define
+		if handler.aiSolver {
+			for !handler.gameOver {
+				handler.aiTurn = true
+				fmt.Println("AI Solver making a move...")
+				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
+				moved := MediumAIMove(handler)
+				if !moved {
+					return // no moves left
+				}
+			}
+		} else {
+			MediumAIMove(handler)
+		}
 	case "Hard":
-		//to be define
+		if handler.aiSolver {
+			for !handler.gameOver {
+				handler.aiTurn = true
+				fmt.Println("AI Solver making a move...")
+				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
+				moved := HardAIMove(handler)
+				if !moved {
+					return // no moves left
+				}
+			}
+		} else {
+			HardAIMove(handler)
+		}
 	}
 }

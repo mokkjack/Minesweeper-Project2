@@ -12,12 +12,6 @@ import (
 	"minesweeper/config"
 )
 
-//Stack Structure - i dont want to hear it
-type Stack struct {
-	data	[]cell
-	theSize	int
-}
-
 //Medium AI Move Function
 func MediumAIMove(handler *Gamehandler) bool {
 	//Game Condition Checker
@@ -46,18 +40,23 @@ func MediumAIMove(handler *Gamehandler) bool {
 		for c := 0; c < config.BoardSize; c++ {
 			sq := &handler.board[r][c]
 			if sq.state == Covered {
-				covered_cucks = append(candidates, cell{r, c})
+				covered_cucks = append(covered_cucks, cell{r, c})
+			} else if sq.state == Uncovered {
+				numbered_cucks = append(numbered_cucks, cell{r, c})
 			}
 		}
 	}
 
 	//Covered Cell Checker
-	if len(candidates) == 0 {
+	if len(covered_cucks) == 0 {
 		return false
 	}
 
 	//AI Move
-	move := candidates[rng.Intn(len(candidates))]
+	move := covered_cucks[rng.Intn(len(covered_cucks))] //NEEDS TO BE ADJUSTED
+
+	//Highlight AI Move
+	handler.board[move.r][move.c].markedByAI = true
 	handler.Click(move.r, move.c)
 	return true
 	
@@ -65,7 +64,12 @@ func MediumAIMove(handler *Gamehandler) bool {
 
 //Narrow Possible Clicks Function
 //func func_name(param_name param_type) return_type {}
-func narrowSlice(candidates []cell) []cell {
-	return candidates
+func narrowSlice(blankCells []cell, numCells []cell) []cell {
+	return blankCells
+}
+
+//Check Surrounding 
+func checkSurround(curr_cell cell) int {
+	return 0
 }
 

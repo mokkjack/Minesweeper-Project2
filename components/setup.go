@@ -40,7 +40,7 @@ import (
 // Outputs: Displays the window for the user
 func LoadSetupInto(win fyne.Window) {
 	//Title Card
-	title := canvas.NewText("MINESWEEPER", color.RGBA{0, 255, 0, 255})
+	title := canvas.NewText("MINESWEEPER 2", color.RGBA{0, 255, 0, 255})
 	title.TextStyle = fyne.TextStyle{Bold: true}
 	title.TextSize = 32
 	titlePlace := container.NewCenter(title)

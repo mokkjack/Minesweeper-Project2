@@ -1,6 +1,9 @@
 //mediumAI.go
 //Evan: 9/29/25 >> 1 hour
 //Evan: 10/1/25 >> 2h
+//Evan: 10/2/25 >> 1h
+
+//func func_name(param_name param_type) return_type {}
 
 //Components Package
 package components
@@ -12,6 +15,19 @@ import (
 	"minesweeper/config"
 )
 
+//Stack Data Structure - dont even say anything
+type Stack struct {
+	data		[]cell
+	theSize		int
+	theCapacity	int
+}
+
+//Cell Structure
+type cell struct {
+	r	int
+	c	int
+}
+
 //Medium AI Move Function
 func MediumAIMove(handler *Gamehandler) bool {
 	//Game Condition Checker
@@ -19,8 +35,9 @@ func MediumAIMove(handler *Gamehandler) bool {
 		return false
 	}
 
-	//Random Variable
-	var rng *rand.Rand
+	//Local Variables
+	var rng *rand.Rand 	//random
+	var guess bool		//toggle guess
 
 	//Initialize rng if it not created
 	if handler.rng == nil {
@@ -29,47 +46,65 @@ func MediumAIMove(handler *Gamehandler) bool {
 		rng = handler.rng
 	}
 
-	//Coordinate Storage Struct Initalization
-	type cell struct { r, c int }
+	//Initialize Stack
+	// theStack := Stack{}
 
 	//Collect All Covered Cells
-	covered_cucks := make([]cell, 0, config.BoardSize*config.BoardSize)
-	numbered_cucks := make([]cell, 0, config.BoardSize*config.BoardSize)
+	covered_cells := make([]cell, 0, config.BoardSize*config.BoardSize)
+	number_cells := make([]cell, 0, config.BoardSize*config.BoardSize)
 
 	for r := 0; r < config.BoardSize; r++ {
 		for c := 0; c < config.BoardSize; c++ {
 			sq := &handler.board[r][c]
 			if sq.state == Covered {
-				covered_cucks = append(covered_cucks, cell{r, c})
-			} else if sq.state == Uncovered {
-				numbered_cucks = append(numbered_cucks, cell{r, c})
+				covered_cells = append(covered_cells, cell{r, c})
+			} else if sq.state == Uncovered && sq.numValue != 0 {
+				number_cells = append(number_cells, cell{r, c})
 			}
 		}
 	}
 
+	//
+	if len(number_cells) == 0 {
+		guess = true
+	} else {
+		// candidates = splitCover(number_cells)
+		guess = false
+	}
+
 	//Covered Cell Checker
-	if len(covered_cucks) == 0 {
+	if len(covered_cells) == 0 {
 		return false
 	}
 
-	//AI Move
-	move := covered_cucks[rng.Intn(len(covered_cucks))] //NEEDS TO BE ADJUSTED
+	//AI Move Decider
+	if guess {
+		move := covered_cells[rng.Intn(len(covered_cells))]
+		print("guess")
 
-	//Highlight AI Move
-	handler.board[move.r][move.c].markedByAI = true
-	handler.Click(move.r, move.c)
-	return true
-	
+		//Highlight and Make AI Move
+		handler.board[move.r][move.c].markedByAI = true
+		handler.Click(move.r, move.c)
+		return true
+
+	} else {
+		move := covered_cells[rng.Intn(len(covered_cells))] //needs to be adjusted
+		print("not guess")
+
+		//Highlight and Make AI Move
+		handler.board[move.r][move.c].markedByAI = true
+		handler.Click(move.r, move.c)
+		return true
+	}
 }
 
-//Narrow Possible Clicks Function
-//func func_name(param_name param_type) return_type {}
-func narrowSlice(blankCells []cell, numCells []cell) []cell {
-	return blankCells
+//
+func splitCover(number_cells []cell) []cell {
+	// next_to_number_cells := make([]cell, 0, config.BoardSize*config.BoardSize)
+
+	return number_cells
 }
 
-//Check Surrounding 
-func checkSurround(curr_cell cell) int {
-	return 0
-}
+
+
 

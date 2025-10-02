@@ -157,7 +157,7 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 			if row == 0 && col == 0 {
 				continue
 			} else if row == 0 {
-				r := canvas.NewText(columnNames[col-1:col], color.RGBA{0, 255, 0, 255})
+				r := canvas.NewText(columnNames[col-1:col], color.RGBA{255, 255, 255, 255})
 				r.TextSize = float32(config.GridSpacing) / 2
 				sz := r.MinSize()
 				cell := float32(config.GridSpacing)
@@ -166,7 +166,7 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 				r.Move(fyne.NewPos(x, y))
 				objects = append(objects, r)
 			} else if col == 0 {
-				r := canvas.NewText(strconv.Itoa(row), color.RGBA{0, 255, 0, 255})
+				r := canvas.NewText(strconv.Itoa(row), color.RGBA{255, 255, 255, 255})
 				r.TextSize = float32(config.GridSpacing) / 2
 				sz := r.MinSize()
 				cell := float32(config.GridSpacing)

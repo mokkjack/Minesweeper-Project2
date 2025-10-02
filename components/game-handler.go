@@ -43,14 +43,17 @@ Outputs:
 - Game result (win/lose)
 */
 
+//Components Package
 package components
 
+//Import Library
 import (
 	"fmt"
 	"math/rand"
 	"minesweeper/config"
 	"time"
 )
+
 
 type SquareState int
 
@@ -351,6 +354,10 @@ func (handler *Gamehandler) checkWin() {
 		handler.win = true
 	}
 }
+
+/*
+* AI Addition
+*/
 
 // Zhang: enabled AI functions (temp)
 func (handler *Gamehandler) setAIEnabled(enabled bool) {

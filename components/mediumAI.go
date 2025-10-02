@@ -1,7 +1,7 @@
 //mediumAI.go
 //Evan: 9/29/25 >> 1 hour
 //Evan: 10/1/25 >> 2h
-//Evan: 10/2/25 >> 1h
+//Evan: 10/2/25 >> 3h
 
 //func func_name(param_name param_type) return_type {}
 
@@ -10,6 +10,7 @@ package components
 
 //Import Library
 import (
+	"fmt"
 	"math/rand"
 	"time"
 	"minesweeper/config"
@@ -38,6 +39,7 @@ func MediumAIMove(handler *Gamehandler) bool {
 	//Local Variables
 	var rng *rand.Rand 	//random
 	var guess bool		//toggle guess
+	// var picks []cell	//picks
 
 	//Initialize rng if it not created
 	if handler.rng == nil {
@@ -68,7 +70,7 @@ func MediumAIMove(handler *Gamehandler) bool {
 	if len(number_cells) == 0 {
 		guess = true
 	} else {
-		// candidates = splitCover(number_cells)
+		neighbor_tracker(handler, number_cells)
 		guess = false
 	}
 
@@ -98,12 +100,96 @@ func MediumAIMove(handler *Gamehandler) bool {
 	}
 }
 
-//
-func splitCover(number_cells []cell) []cell {
-	// next_to_number_cells := make([]cell, 0, config.BoardSize*config.BoardSize)
+//Neighbor Tracker Function || nc = number_cells
+func neighbor_tracker(handler *Gamehandler, nc []cell) []cell {
+	//Local Variables
+	var ntnc []cell
+	next_to_number_cells := make([]cell, 0, config.BoardSize*config.BoardSize)
+	
+	//Call All Number Cells
+	for i := 0; i < len(nc); i++ {
+		ntnc = next_to_number_cells
+		//Top-Left Cell
+		if nc[i].r - 1 >= 0 && nc[i].r - 1 < config.BoardSize && nc[i].c - 1 >= 0 && nc[i].c - 1 < config.BoardSize {
+			if handler.board[nc[i].r - 1][nc[i].c - 1].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r - 1, nc[i].c - 1})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r - 1, nc[i].c - 1})
+			}
+		}
+		//Top-Mid Cell
+		if nc[i].r >= 0 && nc[i].r < config.BoardSize && nc[i].c - 1 >= 0 && nc[i].c - 1 < config.BoardSize {
+			if handler.board[nc[i].r][nc[i].c - 1].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r, nc[i].c - 1})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r, nc[i].c - 1})
+			}
+		}
+		//Top-Right Cell
+		if nc[i].r + 1 >= 0 && nc[i].r + 1 < config.BoardSize && nc[i].c - 1 >= 0 && nc[i].c - 1 < config.BoardSize {
+			if handler.board[nc[i].r + 1][nc[i].c - 1].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r + 1, nc[i].c - 1})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r + 1, nc[i].c - 1})
+			}
+		}
+		//Mid-Left Cell
+		if nc[i].r >= 0 && nc[i].r < config.BoardSize && nc[i].c - 1 >= 0 && nc[i].c - 1 < config.BoardSize {
+			if handler.board[nc[i].r][nc[i].c - 1].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r, nc[i].c - 1})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r, nc[i].c - 1})
+			}
+		}
+		//Mid-Right Cell
+		if nc[i].r >= 0 && nc[i].r < config.BoardSize && nc[i].c + 1 >= 0 && nc[i].c + 1 < config.BoardSize {
+			if handler.board[nc[i].r][nc[i].c + 1].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r, nc[i].c + 1})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r, nc[i].c + 1})
+			}
+		}
+		//Bot-Left Cell
+		if nc[i].r + 1 >= 0 && nc[i].r + 1 < config.BoardSize && nc[i].c - 1 >= 0 && nc[i].c - 1 < config.BoardSize {
+			if handler.board[nc[i].r + 1][nc[i].c - 1].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r + 1, nc[i].c - 1})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r + 1, nc[i].c - 1})
+			}
+		}
+		//Bot-Mid Cell
+		if nc[i].r + 1 >= 0 && nc[i].r + 1 < config.BoardSize && nc[i].c >= 0 && nc[i].c < config.BoardSize {
+			if handler.board[nc[i].r + 1][nc[i].c].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r + 1, nc[i].c})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r + 1, nc[i].c})
+			}
+		}
+		//Bot-Right Cell
+		if nc[i].r + 1 >= 0 && nc[i].r + 1 < config.BoardSize && nc[i].c + 1 >= 0 && nc[i].c + 1 < config.BoardSize {
+			if handler.board[nc[i].r + 1][nc[i].c + 1].state == Uncovered && !(NTcontains(ntnc, cell{nc[i].r + 1, nc[i].c + 1})) {
+				next_to_number_cells = append(next_to_number_cells, cell{nc[i].r + 1, nc[i].c + 1})
+			}
+		}
+	}
 
-	return number_cells
+	//Return Candidates
+	fmt.Printf("%d\n", len(next_to_number_cells))
+	return next_to_number_cells
 }
+
+//Neighbor Tracker Contains Function || tslice = this slice | tcell = this cell
+func NTcontains(tslice []cell, tcell cell) bool {
+	//Check all cells in current slice
+	for i := 0; i < len(tslice); i++ {
+		if tslice[i] == tcell { //Check for cell
+			return true
+		}
+	}
+	//No Identical Cell in Slice
+	return false
+}
+
+/*
+//
+func checkSurrounding(row int, col int) cell {
+	//Local Variable
+	var priority int = 0
+
+
+}
+
+//
+func countSurrounding(row int, col int) int {
+
+}
+*/
 
 
 

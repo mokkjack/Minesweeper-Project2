@@ -69,7 +69,7 @@ func gameSelect(win fyne.Window) {
 	modelLabel := widget.NewLabel("Choose Game Mode:")
 
 	singleButton := widget.NewButton("Single Player", func() {
-		showSinglePlayerMode(win)
+		showMineSetup(win, "Single", "Play")
 	})
 	aiButton := widget.NewButton("AI 1v1 Mode", func() {
 		showAImode(win, "comp")
@@ -85,16 +85,6 @@ func gameSelect(win fyne.Window) {
 		solverButton,
 	)
 	win.SetContent(container.NewPadded(from))
-}
-
-// Single Player Mode Screen || Zhang: show single player mode setup
-func showSinglePlayerMode(win fyne.Window) {
-	label := widget.NewLabel("select Single Player Mode:")
-
-	play := widget.NewButton("Play", func() { showMineSetup(win, "Single", "Play") })
-	solve := widget.NewButton("Solve", func() { showMineSetup(win, "Solve", "Play") })
-	form := container.NewVBox(label, play, solve)
-	win.SetContent(container.NewPadded(form))
 }
 
 // AI Mode Screen || Zhang: show AI mode setup

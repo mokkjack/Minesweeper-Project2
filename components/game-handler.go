@@ -43,7 +43,7 @@ Outputs:
 - Game result (win/lose)
 */
 
-//Components Package
+// Components Package
 package components
 
 //Import Library
@@ -53,7 +53,6 @@ import (
 	"minesweeper/config"
 	"time"
 )
-
 
 type SquareState int
 
@@ -357,7 +356,7 @@ func (handler *Gamehandler) checkWin() {
 
 /*
 * AI Addition
-*/
+ */
 
 // Zhang: enabled AI functions (temp)
 func (handler *Gamehandler) setAIEnabled(enabled bool) {
@@ -375,7 +374,9 @@ func (handler *Gamehandler) RunAIMove() {
 	if handler.gameOver {
 		return
 	}
-	fmt.Println("aiDifficulty: ", handler.aiDifficulty)
+	if handler.aiSolver && !handler.gameOver {
+		fmt.Println("AI mode:", handler.aiDifficulty, "started.")
+	}
 	switch handler.aiDifficulty {
 	case "Easy":
 		if handler.aiSolver {

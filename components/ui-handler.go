@@ -79,6 +79,11 @@ func (c *clickableRect) Tapped(_ *fyne.PointEvent) {
 	if c.handler.aiEnabled && c.handler.aiTurn {
 		return
 	}
+	sq := &c.handler.board[c.row][c.col]
+
+	if sq.state == Uncovered || sq.state == Flagged {
+		return
+	}
 	c.handler.Click(c.row, c.col)
 	UpdateGameUI(c.handler)
 
@@ -108,6 +113,10 @@ func (c *clickableRect) TappedSecondary(_ *fyne.PointEvent) {
 		return
 	}
 	if c.handler.aiEnabled && c.handler.aiTurn { // Zhang: prevent user from flagging when it's AI's turn
+		return
+	}
+	sq := &c.handler.board[c.row][c.col]
+	if sq.state == Uncovered {
 		return
 	}
 	c.handler.ToggleFlag(c.row, c.col)

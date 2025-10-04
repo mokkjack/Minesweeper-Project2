@@ -6,23 +6,23 @@
 
 //func func_name(param_name param_type) return_type {}
 
-//Components Package
+// Components Package
 package components
 
 //Import Library
 import (
 	"math/rand"
-	"time"
 	"minesweeper/config"
+	"time"
 )
 
-//Cell Structure
+// Cell Structure
 type cell struct {
-	r		int
-	c		int
+	r int
+	c int
 }
 
-//Medium AI Move Function
+// Medium AI Move Function
 func MediumAIMove(handler *Gamehandler) bool {
 	//Game Condition Checker
 	if handler == nil || handler.gameOver {
@@ -30,16 +30,16 @@ func MediumAIMove(handler *Gamehandler) bool {
 	}
 
 	//Local Variables
-	var rng 		*rand.Rand 	//random
-	var guess 		bool		//toggle guess
-	var flag_mode 	bool 		//toggle AI flag
-	var selNumCell	cell 		//store selected number cell
-	var posCell		[]cell		//possible options to pick from
+	var rng *rand.Rand  //random
+	var guess bool      //toggle guess
+	var flag_mode bool  //toggle AI flag
+	var selNumCell cell //store selected number cell
+	var posCell []cell  //possible options to pick from
 
 	//Initialize rng if it not created
 	if handler.rng == nil {
 		rng = rand.New(rand.NewSource(time.Now().UnixNano()))
-	} else { 
+	} else {
 		rng = handler.rng
 	}
 
@@ -76,7 +76,7 @@ func MediumAIMove(handler *Gamehandler) bool {
 	}
 
 	//Use the selNumCell Variable because GO dislikes hanging variables
-	print(selNumCell.r, selNumCell.c, "\n")
+	_ = selNumCell
 
 	//Covered Cell Checker
 	if len(covered_cells) == 0 {
@@ -110,7 +110,7 @@ func MediumAIMove(handler *Gamehandler) bool {
 }
 
 //Neighbor Tracker Function || nc = number cell
-/* This function is used to check the 8 surrounding cells of a numbered cell 
+/* This function is used to check the 8 surrounding cells of a numbered cell
  * Input: a single number cell
  * Output: a slice of covered tiles
  */
@@ -119,53 +119,53 @@ func neighbor_tracker(handler *Gamehandler, nc cell) []cell {
 	next_to_number_cells := make([]cell, 0, config.BoardSize*config.BoardSize)
 
 	//Top-Left Cell
-	if nc.r - 1 >= 0 && nc.r - 1 < config.BoardSize && nc.c - 1 >= 0 && nc.c - 1 < config.BoardSize {
-		if handler.board[nc.r - 1][nc.c - 1].state == Covered {
+	if nc.r-1 >= 0 && nc.r-1 < config.BoardSize && nc.c-1 >= 0 && nc.c-1 < config.BoardSize {
+		if handler.board[nc.r-1][nc.c-1].state == Covered {
 			next_to_number_cells = append(next_to_number_cells, cell{nc.r - 1, nc.c - 1})
 		}
 	}
 	//Top-Mid Cell
-	if nc.r - 1 >= 0 && nc.r - 1 < config.BoardSize && nc.c >= 0 && nc.c < config.BoardSize {
-		if handler.board[nc.r - 1][nc.c].state == Covered {
+	if nc.r-1 >= 0 && nc.r-1 < config.BoardSize && nc.c >= 0 && nc.c < config.BoardSize {
+		if handler.board[nc.r-1][nc.c].state == Covered {
 			next_to_number_cells = append(next_to_number_cells, cell{nc.r - 1, nc.c})
 		}
 	}
-		//Top-Right Cell
-		if nc.r - 1 >= 0 && nc.r - 1 < config.BoardSize && nc.c + 1 >= 0 && nc.c + 1 < config.BoardSize {
-			if handler.board[nc.r - 1][nc.c + 1].state == Covered {
-				next_to_number_cells = append(next_to_number_cells, cell{nc.r - 1, nc.c + 1})
-			}
+	//Top-Right Cell
+	if nc.r-1 >= 0 && nc.r-1 < config.BoardSize && nc.c+1 >= 0 && nc.c+1 < config.BoardSize {
+		if handler.board[nc.r-1][nc.c+1].state == Covered {
+			next_to_number_cells = append(next_to_number_cells, cell{nc.r - 1, nc.c + 1})
 		}
-		//Mid-Left Cell
-		if nc.r >= 0 && nc.r < config.BoardSize && nc.c - 1 >= 0 && nc.c - 1 < config.BoardSize {
-			if handler.board[nc.r][nc.c - 1].state == Covered {
-				next_to_number_cells = append(next_to_number_cells, cell{nc.r, nc.c - 1})
-			}
+	}
+	//Mid-Left Cell
+	if nc.r >= 0 && nc.r < config.BoardSize && nc.c-1 >= 0 && nc.c-1 < config.BoardSize {
+		if handler.board[nc.r][nc.c-1].state == Covered {
+			next_to_number_cells = append(next_to_number_cells, cell{nc.r, nc.c - 1})
 		}
-		//Mid-Right Cell
-		if nc.r >= 0 && nc.r < config.BoardSize && nc.c + 1 >= 0 && nc.c + 1 < config.BoardSize {
-			if handler.board[nc.r][nc.c + 1].state == Covered {
-				next_to_number_cells = append(next_to_number_cells, cell{nc.r, nc.c + 1})
-			}
+	}
+	//Mid-Right Cell
+	if nc.r >= 0 && nc.r < config.BoardSize && nc.c+1 >= 0 && nc.c+1 < config.BoardSize {
+		if handler.board[nc.r][nc.c+1].state == Covered {
+			next_to_number_cells = append(next_to_number_cells, cell{nc.r, nc.c + 1})
 		}
-		//Bot-Left Cell
-		if nc.r + 1 >= 0 && nc.r + 1 < config.BoardSize && nc.c - 1 >= 0 && nc.c - 1 < config.BoardSize {
-			if handler.board[nc.r + 1][nc.c - 1].state == Covered {
-				next_to_number_cells = append(next_to_number_cells, cell{nc.r + 1, nc.c - 1})
-			}
+	}
+	//Bot-Left Cell
+	if nc.r+1 >= 0 && nc.r+1 < config.BoardSize && nc.c-1 >= 0 && nc.c-1 < config.BoardSize {
+		if handler.board[nc.r+1][nc.c-1].state == Covered {
+			next_to_number_cells = append(next_to_number_cells, cell{nc.r + 1, nc.c - 1})
 		}
-		//Bot-Mid Cell
-		if nc.r + 1 >= 0 && nc.r + 1 < config.BoardSize && nc.c >= 0 && nc.c < config.BoardSize {
-			if handler.board[nc.r + 1][nc.c].state == Covered {
-				next_to_number_cells = append(next_to_number_cells, cell{nc.r + 1, nc.c})
-			}
+	}
+	//Bot-Mid Cell
+	if nc.r+1 >= 0 && nc.r+1 < config.BoardSize && nc.c >= 0 && nc.c < config.BoardSize {
+		if handler.board[nc.r+1][nc.c].state == Covered {
+			next_to_number_cells = append(next_to_number_cells, cell{nc.r + 1, nc.c})
 		}
-		//Bot-Right Cell
-		if nc.r + 1 >= 0 && nc.r + 1 < config.BoardSize && nc.c + 1 >= 0 && nc.c + 1 < config.BoardSize {
-			if handler.board[nc.r + 1][nc.c + 1].state == Covered {
-				next_to_number_cells = append(next_to_number_cells, cell{nc.r + 1, nc.c + 1})
-			}
+	}
+	//Bot-Right Cell
+	if nc.r+1 >= 0 && nc.r+1 < config.BoardSize && nc.c+1 >= 0 && nc.c+1 < config.BoardSize {
+		if handler.board[nc.r+1][nc.c+1].state == Covered {
+			next_to_number_cells = append(next_to_number_cells, cell{nc.r + 1, nc.c + 1})
 		}
+	}
 
 	//Return Candidates
 	return next_to_number_cells

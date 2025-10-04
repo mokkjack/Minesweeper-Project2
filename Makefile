@@ -1,6 +1,6 @@
 # Makefile for Minesweeper-Project2 by Zhang
 
-#This makefile will actually compile the program in window and Linux
+#This makefile will actually compile the program in Linux
 
 BINARY = program
 OS := $(shell uname -s 2>/dev/null || echo Windows)
@@ -29,7 +29,7 @@ ifeq ($(OS),Linux)
 		echo "All system dependencies are installed."; \
 	fi
 else
-	@echo "Skipping system dependency check on Windows."
+	@echo "Please Use Linux or Linux subsystem for Window, this program will not work in Window!"
 endif
 
 # Go dependencies

@@ -260,6 +260,9 @@ func SetupGameGraphics(board [][]Square, handler *Gamehandler) *fyne.Container {
 		if handler.aiEnabled {
 			h.setAIEnabled(true)
 			h.aiDifficulty = handler.aiDifficulty
+		} else if handler.aiSolver {
+			h.setSolverEnabled(true)
+			h.aiDifficulty = handler.aiDifficulty
 		}
 		board := GetBoard(&h)
 		ui := SetupGameGraphics(board, &h)

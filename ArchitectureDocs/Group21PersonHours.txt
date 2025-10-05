@@ -1,0 +1,8 @@
+When we first started discussing about Projecct 2, we estimated it would take about 15-20 hours, possibly less. However, once we got assigned our group,
+we became unsure, as a major factor became getting familiar with the go programming language. Once we reconvened and talked about the difficulties we
+may face, we decided to double that estimate to about 30-35. We faced many issues initially with the setup of the language environment, as some parts were missing.
+Between learning the language, getting the environment set up for our group, and the work we put in to add the required new elements to the code, we ended up
+with a final total of 56.5 total work hours, which was much more than we initially anticipated. The reason we believe it took so much more was because of 
+the troubleshooting we had with getting the actual environment set up, as well as getting the AI solver working. These were difficult tasks due to how the
+game sets up states, as well as the code generally having some quirks that took some time to understand. Overall, this demonstrated the difficulty that
+we may face as developers with using code that we did not create/understand, as well as the difficulties that come with using a language we aren't familiar with.

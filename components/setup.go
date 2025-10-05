@@ -12,8 +12,14 @@ Functions:
 - LoadSetupInfo: This loads the initial setup screen and asks the user for the number of mines.
 Upon a valid entry, it'll create a new game and replaces the window with the game board.
 
+*Group 21 Additions
+- gameSelect: This loads the game mode selection screen, allowing the user to choose between single player, AI 1v1 mode, or AI solver mode.
+- showAImode: This loads the AI difficulty selection screen after choosing 1v1 or solver, allowing the user to choose between easy, medium, or hard difficulty for the AI.
+
 Inputs:
 - Mine count from the user
+- AI mode from the user
+- AI difficulty from the user
 
 Outputs:
 - Either the Minesweeper board, or the error message depending on if the user entered a mine number in range or not. (Error message will re-prompt for input)

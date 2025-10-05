@@ -1,7 +1,7 @@
 /*
 Prologue
 
-Authors: Adam Berry, Barrett Brown, Jonathan Gott, Alex Phibbs, Minh Vu
+ORIGINAL Authors: Adam Berry, Barrett Brown, Jonathan Gott, Alex Phibbs, Minh Vu
 Creation Date: 9/11/2025
 
 Description:
@@ -32,10 +32,19 @@ Functions:
 
 - checkWin: Check whether the game is in a win condition
 
+* AI Addition by group 21 for solver and 1v1 mode
+- setAIEnabled: Enables AI for 1v1 mode
+
+- setSolverEnabled: Enables AI for solver mode
+
+- RunAIMove: Makes the AI take its turn based on difficulty and mode
+
 Inputs:
 - Board size
 - Number of mines
 - Clicks (clicks/flags)
+- AI mode (1v1 or solver)
+- AI difficulty (easy, medium, hard)
 
 Outputs:
 - Updated game on clicks
@@ -355,21 +364,21 @@ func (handler *Gamehandler) checkWin() {
 }
 
 /*
-* AI Addition
+* AI Addition by group 21 for solver and 1v1 mode
  */
-
-// Zhang: enabled AI functions (temp)
-func (handler *Gamehandler) setAIEnabled(enabled bool) {
+func (handler *Gamehandler) setAIEnabled(enabled bool) { //Set variables for AI to know that it's the 1v1 mode
 	handler.aiEnabled = enabled
 	handler.aiTurn = false
 }
 
-func (handler *Gamehandler) setSolverEnabled(enabled bool) {
+func (handler *Gamehandler) setSolverEnabled(enabled bool) { //Set variables for AI to know that it's the Solver
 	handler.aiSolver = true
 	handler.aiTurn = false
 }
 
 // Zhang: helper function for AI to take it move
+// Inputs: handler object, or inputs from the user
+// Outputs: Editing UI and board based on AI move
 func (handler *Gamehandler) RunAIMove() {
 	if handler.gameOver {
 		return
@@ -377,33 +386,33 @@ func (handler *Gamehandler) RunAIMove() {
 	if handler.aiSolver && !handler.gameOver {
 		fmt.Println("AI mode:", handler.aiDifficulty, "started.")
 	}
-	switch handler.aiDifficulty {
+	switch handler.aiDifficulty { //Switch case for each AI difficulty
 	case "Easy":
-		if handler.aiSolver {
+		if handler.aiSolver { // If solver mode is enabled, keep making moves until game over
 			fmt.Println("AI Solver making a move...")
-			EasyAIMove(handler)
+			EasyAIMove(handler)                // Call the AI to make a move
 			time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
-		} else {
+		} else { //Otherwise, it is the 1v1 mode, so make only one move
 			EasyAIMove(handler)
 		}
 	case "Medium":
-		if handler.aiSolver {
+		if handler.aiSolver { // If solver mode is enabled, keep making moves until game over
 			for !handler.gameOver {
 				fmt.Println("AI Solver making a move...")
-				MediumAIMove(handler)
+				MediumAIMove(handler)              // Call the AI to make a move
 				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
 			}
-		} else {
+		} else { //Otherwise, it is the 1v1 mode, so make only one move
 			MediumAIMove(handler)
 		}
 	case "Hard":
-		if handler.aiSolver {
+		if handler.aiSolver { // If solver mode is enabled, keep making moves until game over
 			for !handler.gameOver {
 				fmt.Println("AI Solver making a move...")
-				HardAIMove(handler)
+				HardAIMove(handler)                // Call the AI to make a move
 				time.Sleep(500 * time.Millisecond) // Pause for half a second between moves
 			}
-		} else {
+		} else { //Otherwise, it is the 1v1 mode, so make only one move
 			HardAIMove(handler)
 		}
 	}

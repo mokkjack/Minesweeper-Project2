@@ -1,10 +1,26 @@
-# EECS 581 Project 1
+# EECS 581 Project 2
 
 ## Getting Started:
 
 - [Fyne Getting Started](https://docs.fyne.io/started/)
 - [Setting up Golang](https://go.dev/doc/tutorial/getting-started)
 - [Guides on setting up Go modules/Using Go if you haven't](https://go.dev/doc/tutorial/create-module)
+
+## How to run:
+-NOTE: It is HEAVILY reccommended to run this game on a Linux machine, or through using WSL on Windows. It will work on all machines, but for the least amount of hassle, it's reccommended to use those.
+-By running "make" in the terminal, it automatically downloads all dependencies needed to run the game. Otherwise, please use the notes in the "Getting Started" section above.
+
+## Group 21:
+-Alex Carillo
+-Zhang Chen
+-Ian Foehrweiser
+-Jack Morice
+-Evan Zhuo
+
+## Edits made by Group 21
+-As group 21, our main new "feature" we added was a main menu, as well as cleaning up some of the UI elements in the code. We also edited the makefile to make running and compiling the game easier
+-Added the 1v1 AI mode, with easy, medium, and hard difficulty.
+-Added the AI auto solver, using the easy, medium, and hard difficulty algorithms from the 1v1 Solver.
 
 ## General Layout/Code execution:
 
@@ -14,7 +30,7 @@
 - Upon declaring how many mines will be "in play" it will connect to ui-handler/game-handler.go
 - main.go: General entry point for the user, in here it will call to setup.go to "show" the initial window then swap view in that window to the minesweeper game
 
-### File Description
+### Files
 
 - ui-handler.go is used to display the cells with the neighbor numbers/state/grab initial left/right click (uncover/flag) and do what needs to be done there
   - Set up cells/grid
@@ -32,3 +48,5 @@
     - Handle if clicked on bomb
     - Check win condition
   - Flagging on 2D-array
+  - Mode setup for AI 1v1 or AI Autosolving
+- easy/medium/hardAI.go handles all AI logic, used for both 1v1 solving and autosolving modes

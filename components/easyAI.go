@@ -1,4 +1,11 @@
-// Zhang: easy AI mode
+//easyAI.go
+/* Created by Zhang
+ * Easy AI will collect information about all available Covered state cells
+ * on the board at the current game state.
+ * A random number generator will randomly pick one of the Covered state cells
+ * to be played. Easy AI will not flag any cells.
+ */
+
 package components
 
 import (

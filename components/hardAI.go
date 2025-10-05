@@ -1,7 +1,9 @@
 // hardAI.go
-// Ian Foehrweiser
-// 10/3/2025
-//
+/* Created by Ian Foehrweiser on 10/3/2025
+ * Hard AI incorporates a 1-2-1 rule to make smarter plays than
+ * mediumAI.go.
+ * If there are no logical plays, it will select a random cell.
+ */
 
 package components
 

@@ -1,10 +1,12 @@
 //mediumAI.go
-//Evan: 9/29/25 >> 1 hour
-//Evan: 10/1/25 >> 2h
-//Evan: 10/2/25 >> 7h
-//Evan: 10/3/25 >> 5h
-
-//func func_name(param_name param_type) return_type {}
+/* Minesweeper Medium AI Component
+ * Medium AI will select a random 'number' cell and use the information to make the best play.
+ * So, if only one Covered state cell is detected on a number cell of 1, 
+ * then Medium AI will flag rather than play. Else, it will randomly play one of the Covered
+ * state cells.
+ * If there are no Covered state cell detected, then a random tile will be played which
+ * utilizes the implementation from easyAI.go.
+ */
 
 // Components Package
 package components
